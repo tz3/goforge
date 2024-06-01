@@ -1,0 +1,26 @@
+projectName/
+    go.mod
+    internal/
+        server/
+            server.go
+        routes/
+            routes.go
+    cmd/
+        api/
+            main.go
+    Makefile
+
+Serverless Structure:
+projectName/
+    go.mod 
+    Makefile
+    lambda/
+        main.go
+    cdk/
+        lib/
+            lamba-stack
+        bin/
+            cdk.ts
+    package.json
+    cdk.json
+    
