@@ -5,6 +5,6 @@
         "goforge",
         "multiinput",
         "textinput",
-        "tprogram"
+        "tprogram",
     ]
 }
