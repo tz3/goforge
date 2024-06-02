@@ -14,16 +14,26 @@ import (
 
 type ProjectConfig struct {
 	ProjectName  string
+	ProjectType  string               // Can be an api or serverless.
+	FrameworkMap map[string]Framework // Can be any of the suggested router Packages.
 	Exit         bool
 	AbsolutePath string
 }
 
+type Framework struct {
+	packageName string
+	mainFunc    func() []byte
+	serverFunc  func() []byte
+	routesFunc  func() []byte
+}
+
+// Router Packages
 const (
 	chiPackage     = "github.com/go-chi/chi/v5"
 	gorillaPackage = "github.com/gorilla/mux"
 	routerPackage  = "github.com/julienschmidt/httprouter"
 	ginPackage     = "github.com/gin-gonic/gin"
-	fiberPacker    = "github.com/gofiber/fiber/v2"
+	fiberPackage   = "github.com/gofiber/fiber/v2"
 )
 
 func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
@@ -54,6 +64,7 @@ func initGoMod(projectName string, appDir string) {
 }
 
 func goGetPackage(appDir, packageName string) {
+	fmt.Printf("Package name is: %s\n", packageName)
 	if err := executeCmd("go",
 		[]string{"get", "-u", packageName},
 		appDir); err != nil {
@@ -61,8 +72,50 @@ func goGetPackage(appDir, packageName string) {
 	}
 }
 
-// We can clean this up after
-// seperate it
+func (p *ProjectConfig) createFrameworkMap() {
+	p.FrameworkMap["chi"] = Framework{
+		packageName: chiPackage,
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeHTTPServer,
+		routesFunc:  tpl.MakeChiRoutes,
+	}
+
+	p.FrameworkMap["standard lib"] = Framework{
+		packageName: "",
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeHTTPServer,
+		routesFunc:  tpl.MakeHTTPRoutes,
+	}
+
+	p.FrameworkMap["gin"] = Framework{
+		packageName: ginPackage,
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeHTTPServer,
+		routesFunc:  tpl.MakeGinRoutes,
+	}
+
+	p.FrameworkMap["fiber"] = Framework{
+		packageName: fiberPackage,
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeFiberServer,
+		routesFunc:  tpl.MakeFiberRoutes,
+	}
+
+	p.FrameworkMap["gorilla/mux"] = Framework{
+		packageName: gorillaPackage,
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeHTTPServer,
+		routesFunc:  tpl.MakeGorillaRoutes,
+	}
+
+	p.FrameworkMap["httpRouter"] = Framework{
+		packageName: routerPackage,
+		mainFunc:    tpl.MainTemplate,
+		serverFunc:  tpl.MakeHTTPServer,
+		routesFunc:  tpl.MakeRouterRoutes,
+	}
+}
+
 func (p *ProjectConfig) CreateMainFile() error {
 	// check if AbsolutePath exists
 	if _, err := os.Stat(p.AbsolutePath); os.IsNotExist(err) {
@@ -85,6 +138,14 @@ func (p *ProjectConfig) CreateMainFile() error {
 	// we need to create a go mod init
 	initGoMod(p.ProjectName, projectPath)
 
+	// create the router based on user input
+	p.createFrameworkMap()
+
+	// we need to install the correct package
+	if p.ProjectType != "standard lib" {
+		goGetPackage(projectPath, p.FrameworkMap[p.ProjectType].packageName)
+	}
+
 	// create /cmd/api
 	if _, err := os.Stat(fmt.Sprintf("%s/cmd/api", projectPath)); os.IsNotExist(err) {
 		err := os.MkdirAll(fmt.Sprintf("%s/cmd/api", projectPath), 0751)
@@ -101,7 +162,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	defer mainFile.Close()
 
 	// inject template
-	mainTemplate := template.Must(template.New("main").Parse(string(tpl.MainTemplate())))
+	mainTemplate := template.Must(template.New("main").Parse(string(p.FrameworkMap[p.ProjectType].mainFunc())))
 	err = mainTemplate.Execute(mainFile, p)
 	if err != nil {
 		fmt.Printf("this is the err %v\n", err)
@@ -135,7 +196,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	serverFileTemplate := template.Must(template.New("server").Parse(string(tpl.MakeHTTPServer())))
+	serverFileTemplate := template.Must(template.New("server").Parse(string(p.FrameworkMap[p.ProjectType].serverFunc())))
 	err = serverFileTemplate.Execute(serverFile, p)
 	if err != nil {
 		return err
@@ -148,7 +209,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	routesFileTemplate := template.Must(template.New("routes").Parse(string(tpl.MakeHTTPRoutes())))
+	routesFileTemplate := template.Must(template.New("routes").Parse(string(p.FrameworkMap[p.ProjectType].routesFunc())))
 	err = routesFileTemplate.Execute(routesFile, p)
 	if err != nil {
 		return err
