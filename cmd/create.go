@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,7 +28,10 @@ var createCmd = &cobra.Command{
 			ProjectName: &textinput.Output{},
 		}
 
-		projectConfig := &project.ProjectConfig{}
+		projectConfig := &project.ProjectConfig{
+			FrameworkMap: make(map[string]project.Framework),
+		}
+
 		steps := steps.InitSteps(&options)
 
 		tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
@@ -48,6 +52,8 @@ var createCmd = &cobra.Command{
 		}
 
 		projectConfig.ProjectName = options.ProjectName.Output
+		projectConfig.ProjectType = options.ProjectType
+		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
 		currentWorkingDir, err := os.Getwd()
 		if err != nil {
 			cobra.CheckErr(err)
