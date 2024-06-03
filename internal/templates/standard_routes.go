@@ -1,5 +1,18 @@
 package template
 
+type StandardLibraryRouteTemplate struct {
+}
+
+func (c StandardLibraryRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c StandardLibraryRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c StandardLibraryRouteTemplate) Routes() []byte {
+	return MakeHTTPRoutes()
+}
+
 func MakeHTTPServer() []byte {
 	return []byte(`
 package server

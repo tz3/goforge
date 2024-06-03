@@ -1,5 +1,18 @@
 package template
 
+type GorillaRouteTemplate struct {
+}
+
+func (c GorillaRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c GorillaRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c GorillaRouteTemplate) Routes() []byte {
+	return MakeGorillaRoutes()
+}
+
 func MakeGorillaRoutes() []byte {
 	return []byte(`
 

@@ -1,5 +1,18 @@
 package template
 
+type HttpRouterRouteTemplate struct {
+}
+
+func (c HttpRouterRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c HttpRouterRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c HttpRouterRouteTemplate) Routes() []byte {
+	return MakeRouterRoutes()
+}
+
 func MakeRouterRoutes() []byte {
 	return []byte(`
 package server
