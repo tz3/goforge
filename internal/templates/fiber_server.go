@@ -4,13 +4,13 @@ type FiberRouteTemplate struct {
 }
 
 func (c FiberRouteTemplate) Main() []byte {
-	return MainTemplate()
+	return MakeFiberMain()
 }
 func (c FiberRouteTemplate) Server() []byte {
-	return MakeHTTPServer()
+	return MakeFiberServer()
 }
 func (c FiberRouteTemplate) Routes() []byte {
-	return MakeFiberServer()
+	return MakeFiberRoutes()
 }
 
 func MakeFiberServer() []byte {
