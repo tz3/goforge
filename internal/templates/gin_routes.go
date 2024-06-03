@@ -1,5 +1,18 @@
 package template
 
+type GinRouteTemplate struct {
+}
+
+func (c GinRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c GinRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c GinRouteTemplate) Routes() []byte {
+	return MakeGinRoutes()
+}
+
 func MakeGinRoutes() []byte {
 	return []byte(`
 

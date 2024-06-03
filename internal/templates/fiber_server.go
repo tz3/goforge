@@ -1,5 +1,18 @@
 package template
 
+type FiberRouteTemplate struct {
+}
+
+func (c FiberRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c FiberRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c FiberRouteTemplate) Routes() []byte {
+	return MakeFiberServer()
+}
+
 func MakeFiberServer() []byte {
 	return []byte(`
 

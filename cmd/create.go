@@ -29,7 +29,7 @@ var createCmd = &cobra.Command{
 		}
 
 		projectConfig := &project.ProjectConfig{
-			FrameworkMap: make(map[string]project.Framework),
+			FrameworkMap: make(map[string]project.WebFramework),
 		}
 
 		steps := steps.InitSteps(&options)

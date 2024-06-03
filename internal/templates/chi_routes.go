@@ -1,5 +1,18 @@
 package template
 
+type ChiRouteTemplate struct {
+}
+
+func (c ChiRouteTemplate) Main() []byte {
+	return MainTemplate()
+}
+func (c ChiRouteTemplate) Server() []byte {
+	return MakeHTTPServer()
+}
+func (c ChiRouteTemplate) Routes() []byte {
+	return MakeChiRoutes()
+}
+
 func MakeChiRoutes() []byte {
 	return []byte(`
 package server

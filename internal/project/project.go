@@ -14,17 +14,21 @@ import (
 
 type ProjectConfig struct {
 	ProjectName  string
-	ProjectType  string               // Can be an api or serverless.
-	FrameworkMap map[string]Framework // Can be any of the suggested router Packages.
+	ProjectType  string                  // Can be an api or serverless.
+	FrameworkMap map[string]WebFramework // Can be any of the suggested router Packages.
 	Exit         bool
 	AbsolutePath string
 }
 
-type Framework struct {
+type WebFramework struct {
 	packageName string
-	mainFunc    func() []byte
-	serverFunc  func() []byte
-	routesFunc  func() []byte
+	templater   TemplateGenerator
+}
+
+type TemplateGenerator interface {
+	Main() []byte
+	Server() []byte
+	Routes() []byte
 }
 
 // Router Packages
@@ -73,46 +77,34 @@ func goGetPackage(appDir, packageName string) {
 }
 
 func (p *ProjectConfig) createFrameworkMap() {
-	p.FrameworkMap["chi"] = Framework{
-		packageName: chiPackage,
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeHTTPServer,
-		routesFunc:  tpl.MakeChiRoutes,
-	}
-
-	p.FrameworkMap["standard lib"] = Framework{
+	p.FrameworkMap["standard lib"] = WebFramework{
 		packageName: "",
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeHTTPServer,
-		routesFunc:  tpl.MakeHTTPRoutes,
+		templater:   tpl.StandardLibraryRouteTemplate{},
 	}
 
-	p.FrameworkMap["gin"] = Framework{
+	p.FrameworkMap["chi"] = WebFramework{
+		packageName: chiPackage,
+		templater:   tpl.ChiRouteTemplate{},
+	}
+
+	p.FrameworkMap["gin"] = WebFramework{
 		packageName: ginPackage,
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeHTTPServer,
-		routesFunc:  tpl.MakeGinRoutes,
+		templater:   tpl.GinRouteTemplate{},
 	}
 
-	p.FrameworkMap["fiber"] = Framework{
+	p.FrameworkMap["fiber"] = WebFramework{
 		packageName: fiberPackage,
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeFiberServer,
-		routesFunc:  tpl.MakeFiberRoutes,
+		templater:   tpl.FiberRouteTemplate{},
 	}
 
-	p.FrameworkMap["gorilla/mux"] = Framework{
+	p.FrameworkMap["gorilla/mux"] = WebFramework{
 		packageName: gorillaPackage,
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeHTTPServer,
-		routesFunc:  tpl.MakeGorillaRoutes,
+		templater:   tpl.GorillaRouteTemplate{},
 	}
 
-	p.FrameworkMap["httpRouter"] = Framework{
+	p.FrameworkMap["httpRouter"] = WebFramework{
 		packageName: routerPackage,
-		mainFunc:    tpl.MainTemplate,
-		serverFunc:  tpl.MakeHTTPServer,
-		routesFunc:  tpl.MakeRouterRoutes,
+		templater:   tpl.HttpRouterRouteTemplate{},
 	}
 }
 
@@ -162,7 +154,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	defer mainFile.Close()
 
 	// inject template
-	mainTemplate := template.Must(template.New("main").Parse(string(p.FrameworkMap[p.ProjectType].mainFunc())))
+	mainTemplate := template.Must(template.New("main").Parse(string(p.FrameworkMap[p.ProjectType].templater.Main())))
 	err = mainTemplate.Execute(mainFile, p)
 	if err != nil {
 		fmt.Printf("this is the err %v\n", err)
@@ -196,7 +188,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	serverFileTemplate := template.Must(template.New("server").Parse(string(p.FrameworkMap[p.ProjectType].serverFunc())))
+	serverFileTemplate := template.Must(template.New("server").Parse(string(p.FrameworkMap[p.ProjectType].templater.Server())))
 	err = serverFileTemplate.Execute(serverFile, p)
 	if err != nil {
 		return err
@@ -209,7 +201,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	routesFileTemplate := template.Must(template.New("routes").Parse(string(p.FrameworkMap[p.ProjectType].routesFunc())))
+	routesFileTemplate := template.Must(template.New("routes").Parse(string(p.FrameworkMap[p.ProjectType].templater.Routes())))
 	err = routesFileTemplate.Execute(routesFile, p)
 	if err != nil {
 		return err
