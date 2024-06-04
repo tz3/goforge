@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
-
-	"github.com/spf13/cobra"
 )
 
 func executeCmd(name string, args []string, dir string) error {
@@ -19,19 +17,21 @@ func executeCmd(name string, args []string, dir string) error {
 	return nil
 }
 
-func initGoMod(projectName string, appDir string) {
+func initGoMod(projectName string, appDir string) error {
 	if err := executeCmd("go",
 		[]string{"mod", "init", projectName},
 		appDir); err != nil {
-		cobra.CheckErr(err)
+		return err
 	}
+	return nil
 }
 
-func goGetPackage(appDir, packageName string) {
+func goGetPackage(appDir, packageName string) error {
 	fmt.Printf("Package name is: %s\n", packageName)
 	if err := executeCmd("go",
 		[]string{"get", "-u", packageName},
 		appDir); err != nil {
-		cobra.CheckErr(err)
+		return err
 	}
+	return nil
 }
