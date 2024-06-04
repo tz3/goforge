@@ -67,5 +67,7 @@ var createCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
+		fmt.Println("\nTo get into the project directory:")
+		fmt.Printf("%s cd %s\n", multiinput.Bullet, projectConfig.ProjectName)
 	},
 }

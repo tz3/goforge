@@ -31,11 +31,16 @@ type TemplateGenerator interface {
 
 // Router Packages
 const (
-	chiPackage     = "github.com/go-chi/chi/v5"
-	gorillaPackage = "github.com/gorilla/mux"
-	routerPackage  = "github.com/julienschmidt/httprouter"
-	ginPackage     = "github.com/gin-gonic/gin"
-	fiberPackage   = "github.com/gofiber/fiber/v2"
+	chiPackage         = "github.com/go-chi/chi/v5"
+	gorillaPackage     = "github.com/gorilla/mux"
+	routerPackage      = "github.com/julienschmidt/httprouter"
+	ginPackage         = "github.com/gin-gonic/gin"
+	fiberPackage       = "github.com/gofiber/fiber/v2"
+	cmdApiPath         = "cmd/api"
+	internalServerPath = "internal/server"
+	mainFile           = "main.go"
+	serverFile         = "server.go"
+	routesFile         = "routes.go"
 )
 
 func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
@@ -97,24 +102,28 @@ func (p *ProjectConfig) CreateMainFile() error {
 
 	projectPath := fmt.Sprintf("%s/%s", p.AbsolutePath, p.ProjectName)
 
-	// we need to create a go mod init
-	initGoMod(p.ProjectName, projectPath)
-
 	// create the router based on user input
 	p.createFrameworkMap()
 
-	// we need to install the correct package
-	if p.ProjectType != "standard lib" {
-		goGetPackage(projectPath, p.FrameworkMap[p.ProjectType].packageName)
-	}
-
-	err := p.CreatePath("cmd/api", projectPath)
+	err := initGoMod(p.ProjectName, projectPath)
 	if err != nil {
 		cobra.CheckErr(err)
-		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate("cmd/api", projectPath, "main.go", "main")
+	// we need to install the correct package
+	if p.ProjectType != "standard lib" {
+		err = goGetPackage(projectPath, p.FrameworkMap[p.ProjectType].packageName)
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+	}
+
+	err = p.CreatePath(cmdApiPath, projectPath)
+	if err != nil {
+		cobra.CheckErr(err)
+	}
+
+	err = p.CreateFileAndWriteTemplate(cmdApiPath, projectPath, mainFile, "main")
 	if err != nil {
 		cobra.CheckErr(err)
 		return err
@@ -135,19 +144,19 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	err = p.CreatePath("internal/server", projectPath)
+	err = p.CreatePath(internalServerPath, projectPath)
 	if err != nil {
 		cobra.CheckErr(err)
 		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate("internal/server", projectPath, "server.go", "server")
+	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, serverFile, "server")
 	if err != nil {
 		cobra.CheckErr(err)
 		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate("internal/server", projectPath, "routes.go", "routes")
+	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, routesFile, "routes")
 	if err != nil {
 		cobra.CheckErr(err)
 		return err

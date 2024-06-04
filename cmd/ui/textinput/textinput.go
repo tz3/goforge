@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color("#01FAC6")).Foreground(lipgloss.Color("#030303")).Bold(true).Padding(0, 1, 0)
+	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color("#00BFFF")).Foreground(lipgloss.Color("#FFFFFF")).Bold(true).Padding(0, 1, 0)
 )
 
 type (
