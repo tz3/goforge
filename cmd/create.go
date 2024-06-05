@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -55,6 +56,7 @@ var createCmd = &cobra.Command{
 
 		tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
 		if _, err := tprogram.Run(); err != nil {
+			log.Printf("Failed to run the program: %v\n", err)
 			cobra.CheckErr(err)
 		}
 		projectConfig.ExitCLI(tprogram)
@@ -63,6 +65,7 @@ var createCmd = &cobra.Command{
 			s := &multiinput.Selection{}
 			tprogram = tea.NewProgram(multiinput.InitialModelMulti(step.Options, s, step.Headers, projectConfig))
 			if _, err := tprogram.Run(); err != nil {
+				log.Printf("Failed to run the program for step %s: %v\n", step.Headers, err)
 				cobra.CheckErr(err)
 			}
 			projectConfig.ExitCLI(tprogram)
@@ -75,6 +78,7 @@ var createCmd = &cobra.Command{
 		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
 		currentWorkingDir, err := os.Getwd()
 		if err != nil {
+			log.Printf("Failed to get the current working directory: %v\n", err)
 			cobra.CheckErr(err)
 		}
 
@@ -83,6 +87,7 @@ var createCmd = &cobra.Command{
 		// This calls the templates
 		err = projectConfig.CreateMainFile()
 		if err != nil {
+			log.Printf("Failed to create the main file: %v\n", err)
 			cobra.CheckErr(err)
 		}
 
