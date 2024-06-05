@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -96,7 +97,8 @@ func (p *ProjectConfig) CreateMainFile() error {
 	if _, err := os.Stat(fmt.Sprintf("%s/%s", p.AbsolutePath, p.ProjectName)); os.IsNotExist(err) {
 		err := os.MkdirAll(fmt.Sprintf("%s/%s", p.AbsolutePath, p.ProjectName), 0751)
 		if err != nil {
-			fmt.Printf("Error creating root project directory %v\n", err)
+			log.Printf("Error creating root project directory %v\n", err)
+			return err
 		}
 	}
 
@@ -107,30 +109,38 @@ func (p *ProjectConfig) CreateMainFile() error {
 
 	err := initGoMod(p.ProjectName, projectPath)
 	if err != nil {
+		log.Printf("Failed to initialize Go module: %v\n", err)
 		cobra.CheckErr(err)
+		return err
 	}
 
 	// we need to install the correct package
 	if p.ProjectType != "standard lib" {
 		err = goGetPackage(projectPath, p.FrameworkMap[p.ProjectType].packageName)
 		if err != nil {
+			log.Printf("Failed to get package for project type %s: %v\n", p.ProjectType, err)
 			cobra.CheckErr(err)
+			return err
 		}
 	}
 
 	err = p.CreatePath(cmdApiPath, projectPath)
 	if err != nil {
+		log.Printf("Failed to create path %s: %v\n", cmdApiPath, err)
 		cobra.CheckErr(err)
+		return err
 	}
 
 	err = p.CreateFileAndWriteTemplate(cmdApiPath, projectPath, mainFile, "main")
 	if err != nil {
+		log.Printf("Failed to create file and template %s: %v\n", cmdApiPath, err)
 		cobra.CheckErr(err)
 		return err
 	}
 
 	makeFile, err := os.Create(fmt.Sprintf("%s/Makefile", projectPath))
 	if err != nil {
+		log.Printf("Failed to create Makefile at path %s: %v\n", projectPath, err)
 		cobra.CheckErr(err)
 		return err
 	}
@@ -138,27 +148,29 @@ func (p *ProjectConfig) CreateMainFile() error {
 	defer makeFile.Close()
 
 	// inject makefile template
+	// inject makefile template
 	makeFileTemplate := template.Must(template.New("makefile").Parse(string(tpl.MakeTemplate())))
 	err = makeFileTemplate.Execute(makeFile, p)
 	if err != nil {
+		log.Printf("Failed to execute makefile template: %v\n", err)
 		return err
 	}
 
 	err = p.CreatePath(internalServerPath, projectPath)
 	if err != nil {
-		cobra.CheckErr(err)
+		log.Printf("Failed to create path %s: %v\n", internalServerPath, err)
 		return err
 	}
 
 	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, serverFile, "server")
 	if err != nil {
-		cobra.CheckErr(err)
+		log.Printf("Failed to create and write to server file at path %s: %v\n", internalServerPath, err)
 		return err
 	}
 
 	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, routesFile, "routes")
 	if err != nil {
-		cobra.CheckErr(err)
+		log.Printf("Failed to create and write to routes file at path %s: %v\n", internalServerPath, err)
 		return err
 	}
 
