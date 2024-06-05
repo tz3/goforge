@@ -5,12 +5,29 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"github.com/tz3/goforge/cmd/ui/multiinput"
 	"github.com/tz3/goforge/cmd/ui/textinput"
 	"github.com/tz3/goforge/internal/project"
 	"github.com/tz3/goforge/internal/steps"
+)
+
+const logo = `
+
+░██████╗░░█████╗░███████╗░█████╗░██████╗░░██████╗░███████╗
+██╔════╝░██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝░██╔════╝
+██║░░██╗░██║░░██║█████╗░░██║░░██║██████╔╝██║░░██╗░█████╗░░
+██║░░╚██╗██║░░██║██╔══╝░░██║░░██║██╔══██╗██║░░╚██╗██╔══╝░░
+╚██████╔╝╚█████╔╝██║░░░░░╚█████╔╝██║░░██║╚██████╔╝███████╗
+░╚═════╝░░╚════╝░╚═╝░░░░░░╚════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝
+
+`
+
+var (
+	logoStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF")).Bold(true)
+	endingMsgStyle = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("#FFD700")).Bold(true)
 )
 
 func init() {
@@ -33,6 +50,8 @@ var createCmd = &cobra.Command{
 		}
 
 		steps := steps.InitSteps(&options)
+
+		fmt.Printf("%s\n", logoStyle.Render(logo))
 
 		tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
 		if _, err := tprogram.Run(); err != nil {
@@ -67,7 +86,9 @@ var createCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		fmt.Println("\nTo get into the project directory:")
-		fmt.Printf("%s cd %s\n", multiinput.Bullet, projectConfig.ProjectName)
+		fmt.Printf("%s\n%s cd %s\n",
+			endingMsgStyle.Render("To get into the project directory:"),
+			endingMsgStyle.Render(multiinput.Bullet),
+			endingMsgStyle.Render(projectConfig.ProjectName))
 	},
 }
