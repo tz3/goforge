@@ -14,9 +14,7 @@ func (c GinRouteTemplate) Routes() []byte {
 }
 
 func MakeGinRoutes() []byte {
-	return []byte(`
-
-package server
+	return []byte(`package server
 
 import (
 	"net/http"
