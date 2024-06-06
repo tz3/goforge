@@ -1,8 +1,7 @@
 package template
 
 func MainTemplate() []byte {
-	return []byte(`
-package main
+	return []byte(`package main
 
 import (
 	"{{.ProjectName}}/internal/server"
@@ -22,9 +21,7 @@ func main() {
 
 func MakeTemplate() []byte {
 	return []byte(
-		`
-# Simple Makefile for a Go project
-
+		`# Simple Makefile for a Go project
 # Build the application
 all: build
 
