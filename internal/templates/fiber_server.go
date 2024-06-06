@@ -60,7 +60,7 @@ func MakeFiberMain() []byte {
 import (
 	"{{.ProjectName}}/internal/server"
 )
-	
+
 func main() {
 
 	server := server.New()
