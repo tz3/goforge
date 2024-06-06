@@ -174,6 +174,12 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
+	err = goFormat(projectPath)
+	if err != nil {
+		log.Printf("Failed to run 'gofmt' in the created project %v\n", err)
+		cobra.CheckErr(err)
+	}
+
 	return nil
 }
 
