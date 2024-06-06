@@ -37,6 +37,7 @@ const (
 	routerPackage      = "github.com/julienschmidt/httprouter"
 	ginPackage         = "github.com/gin-gonic/gin"
 	fiberPackage       = "github.com/gofiber/fiber/v2"
+	echoPackage        = "github.com/labstack/echo/v4"
 	cmdApiPath         = "cmd/api"
 	internalServerPath = "internal/server"
 	mainFile           = "main.go"
@@ -82,6 +83,12 @@ func (p *ProjectConfig) createFrameworkMap() {
 		packageName: routerPackage,
 		templater:   tpl.HttpRouterRouteTemplate{},
 	}
+
+	p.FrameworkMap["echo"] = WebFramework{
+		packageName: echoPackage,
+		templater:   tpl.EchoTemplates{},
+	}
+
 }
 
 func (p *ProjectConfig) CreateMainFile() error {

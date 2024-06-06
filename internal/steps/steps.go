@@ -53,6 +53,10 @@ func InitSteps(options *Options) *Steps {
 						Title: "httpRouter",
 						Desc:  "use julienschmidt/httprouter from: https://github.com/julienschmidt/httprouter",
 					},
+					{
+						Title: "chi",
+						Desc:  "use echo from: https://github.com/labstack/echo",
+					},
 				},
 				Headers: "What framework do you want to use in your Go project?",
 				Field:   &options.ProjectType,
