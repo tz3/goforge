@@ -60,37 +60,37 @@ func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 func (p *ProjectConfig) createFrameworkMap() {
 	p.FrameworkMap["standard lib"] = WebFramework{
 		dependencies: []string{},
-		templateGen:  tpl.StandardLibraryRouteTemplate{},
+		templateGen:  tpl.StandardLibraryTemplate{},
 	}
 
 	p.FrameworkMap["chi"] = WebFramework{
 		dependencies: chiDependencies,
-		templateGen:  tpl.ChiRouteTemplate{},
+		templateGen:  tpl.ChiTemplate{},
 	}
 
 	p.FrameworkMap["gin"] = WebFramework{
 		dependencies: ginDependencies,
-		templateGen:  tpl.GinRouteTemplate{},
+		templateGen:  tpl.GinTemplate{},
 	}
 
 	p.FrameworkMap["fiber"] = WebFramework{
 		dependencies: fiberDependencies,
-		templateGen:  tpl.FiberRouteTemplate{},
+		templateGen:  tpl.FiberTemplate{},
 	}
 
 	p.FrameworkMap["gorilla/mux"] = WebFramework{
 		dependencies: gorillaDependencies,
-		templateGen:  tpl.GorillaRouteTemplate{},
+		templateGen:  tpl.GorillaTemplate{},
 	}
 
 	p.FrameworkMap["httpRouter"] = WebFramework{
 		dependencies: routerDependencies,
-		templateGen:  tpl.HttpRouterRouteTemplate{},
+		templateGen:  tpl.HttpRouterTemplate{},
 	}
 
 	p.FrameworkMap["echo"] = WebFramework{
 		dependencies: echoDependencies,
-		templateGen:  tpl.EchoTemplates{},
+		templateGen:  tpl.EchoTemplate{},
 	}
 
 }
