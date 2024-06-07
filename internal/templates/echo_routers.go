@@ -3,31 +3,14 @@ package template
 type EchoTemplates struct{}
 
 func (e EchoTemplates) Main() []byte {
-	return MakeEchoMain()
+	return MainTemplate()
 }
 func (e EchoTemplates) Server() []byte {
-	return MakeEchoServer()
+	return MakeHTTPServer()
 }
 
 func (e EchoTemplates) Routes() []byte {
 	return MakeEchoRoutes()
-}
-
-func MakeEchoServer() []byte {
-	return []byte(`package server
-	
-import "github.com/labstack/echo/v4"
-type EchoServer struct {
-	*echo.Echo
-}
-func New() *EchoServer {
-	server := &EchoServer{
-		Echo: echo.New(),
-	}
-	
-	return server
-}
-`)
 }
 
 func MakeEchoRoutes() []byte {
@@ -36,29 +19,20 @@ func MakeEchoRoutes() []byte {
 		"net/http"
 	
 		"github.com/labstack/echo/v4"
+		"github.com/labstack/echo/v4/middleware"
 	)
-func (s *EchoServer) RegisterEchoRoutes() {
-	s.Echo.GET("/", s.helloWorldHandler)
+func (s *Server) RegisterRoutes() http.Handler {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.GET("/", s.helloWorldHandler)
+	return e
 }
-func (s *EchoServer) helloWorldHandler(c echo.Context) error {
+func (s *Server) helloWorldHandler(c echo.Context) error {
 	resp := map[string]string{
 		"message": "Hello World",
 	}
 	return c.JSON(http.StatusOK, resp)
 }
-`)
-}
-
-func MakeEchoMain() []byte {
-	return []byte(`package main
-	
-	import (
-		"{{.ProjectName}}/internal/server"
-	)
-	func main() {
-		server := server.New()
-		server.RegisterEchoRoutes()
-		server.Logger.Fatal(server.Start(":8080"))
-	}
 `)
 }

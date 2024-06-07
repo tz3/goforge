@@ -54,7 +54,7 @@ func InitSteps(options *Options) *Steps {
 						Desc:  "use julienschmidt/httprouter from: https://github.com/julienschmidt/httprouter",
 					},
 					{
-						Title: "chi",
+						Title: "echo",
 						Desc:  "use echo from: https://github.com/labstack/echo",
 					},
 				},
