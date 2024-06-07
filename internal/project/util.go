@@ -2,7 +2,6 @@ package project
 
 import (
 	"bytes"
-	"fmt"
 	"os/exec"
 )
 
@@ -30,14 +29,15 @@ func initGoMod(projectName string, appDir string) error {
 	return nil
 }
 
-// goGetPackage fetches the specified Go package and updates it.
+// goGetDependencies fetches the specified Go packages/dependencies and updates it.
 // It returns an error if the package fetching fails.
-func goGetPackage(appDir, packageName string) error {
-	fmt.Printf("Package name is: %s\n", packageName)
-	if err := executeCmd("go",
-		[]string{"get", "-u", packageName},
-		appDir); err != nil {
-		return err
+func goGetDependencies(appDir string, packages []string) error {
+	for _, packageName := range packages {
+		if err := executeCmd("go",
+			[]string{"get", "-u", packageName},
+			appDir); err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -20,8 +20,8 @@ type ProjectConfig struct {
 }
 
 type WebFramework struct {
-	packageName string
-	templater   TemplateGenerator
+	dependencies []string
+	templateGen  TemplateGenerator
 }
 
 type TemplateGenerator interface {
@@ -30,14 +30,18 @@ type TemplateGenerator interface {
 	Routes() []byte
 }
 
-// Router Packages
+// Web framework dependencies
+var (
+	chiDependencies     = []string{"github.com/go-chi/chi/v5"}
+	gorillaDependencies = []string{"github.com/gorilla/mux"}
+	routerDependencies  = []string{"github.com/julienschmidt/httprouter"}
+	ginDependencies     = []string{"github.com/gin-gonic/gin"}
+	fiberDependencies   = []string{"github.com/gofiber/fiber/v2"}
+	echoDependencies    = []string{"github.com/labstack/echo/v4", "github.com/labstack/echo/v4/middleware"}
+)
+
+// File paths and names
 const (
-	chiPackage         = "github.com/go-chi/chi/v5"
-	gorillaPackage     = "github.com/gorilla/mux"
-	routerPackage      = "github.com/julienschmidt/httprouter"
-	ginPackage         = "github.com/gin-gonic/gin"
-	fiberPackage       = "github.com/gofiber/fiber/v2"
-	echoPackage        = "github.com/labstack/echo/v4"
 	cmdApiPath         = "cmd/api"
 	internalServerPath = "internal/server"
 	mainFile           = "main.go"
@@ -55,38 +59,38 @@ func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 
 func (p *ProjectConfig) createFrameworkMap() {
 	p.FrameworkMap["standard lib"] = WebFramework{
-		packageName: "",
-		templater:   tpl.StandardLibraryRouteTemplate{},
+		dependencies: []string{},
+		templateGen:  tpl.StandardLibraryRouteTemplate{},
 	}
 
 	p.FrameworkMap["chi"] = WebFramework{
-		packageName: chiPackage,
-		templater:   tpl.ChiRouteTemplate{},
+		dependencies: chiDependencies,
+		templateGen:  tpl.ChiRouteTemplate{},
 	}
 
 	p.FrameworkMap["gin"] = WebFramework{
-		packageName: ginPackage,
-		templater:   tpl.GinRouteTemplate{},
+		dependencies: ginDependencies,
+		templateGen:  tpl.GinRouteTemplate{},
 	}
 
 	p.FrameworkMap["fiber"] = WebFramework{
-		packageName: fiberPackage,
-		templater:   tpl.FiberRouteTemplate{},
+		dependencies: fiberDependencies,
+		templateGen:  tpl.FiberRouteTemplate{},
 	}
 
 	p.FrameworkMap["gorilla/mux"] = WebFramework{
-		packageName: gorillaPackage,
-		templater:   tpl.GorillaRouteTemplate{},
+		dependencies: gorillaDependencies,
+		templateGen:  tpl.GorillaRouteTemplate{},
 	}
 
 	p.FrameworkMap["httpRouter"] = WebFramework{
-		packageName: routerPackage,
-		templater:   tpl.HttpRouterRouteTemplate{},
+		dependencies: routerDependencies,
+		templateGen:  tpl.HttpRouterRouteTemplate{},
 	}
 
 	p.FrameworkMap["echo"] = WebFramework{
-		packageName: echoPackage,
-		templater:   tpl.EchoTemplates{},
+		dependencies: echoDependencies,
+		templateGen:  tpl.EchoTemplates{},
 	}
 
 }
@@ -123,7 +127,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 
 	// we need to install the correct package
 	if p.ProjectType != "standard lib" {
-		err = goGetPackage(projectPath, p.FrameworkMap[p.ProjectType].packageName)
+		err = goGetDependencies(projectPath, p.FrameworkMap[p.ProjectType].dependencies)
 		if err != nil {
 			log.Printf("Failed to get package for project type %s: %v\n", p.ProjectType, err)
 			cobra.CheckErr(err)
@@ -131,14 +135,14 @@ func (p *ProjectConfig) CreateMainFile() error {
 		}
 	}
 
-	err = p.CreatePath(cmdApiPath, projectPath)
+	err = p.createPath(cmdApiPath, projectPath)
 	if err != nil {
 		log.Printf("Failed to create path %s: %v\n", cmdApiPath, err)
 		cobra.CheckErr(err)
 		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate(cmdApiPath, projectPath, mainFile, "main")
+	err = p.createFileAndWriteTemplate(cmdApiPath, projectPath, mainFile, "main")
 	if err != nil {
 		log.Printf("Failed to create file and template %s: %v\n", cmdApiPath, err)
 		cobra.CheckErr(err)
@@ -155,7 +159,6 @@ func (p *ProjectConfig) CreateMainFile() error {
 	defer makeFile.Close()
 
 	// inject makefile template
-	// inject makefile template
 	makeFileTemplate := template.Must(template.New("makefile").Parse(string(tpl.MakeTemplate())))
 	err = makeFileTemplate.Execute(makeFile, p)
 	if err != nil {
@@ -163,19 +166,19 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
-	err = p.CreatePath(internalServerPath, projectPath)
+	err = p.createPath(internalServerPath, projectPath)
 	if err != nil {
 		log.Printf("Failed to create path %s: %v\n", internalServerPath, err)
 		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, serverFile, "server")
+	err = p.createFileAndWriteTemplate(internalServerPath, projectPath, serverFile, "server")
 	if err != nil {
 		log.Printf("Failed to create and write to server file at path %s: %v\n", internalServerPath, err)
 		return err
 	}
 
-	err = p.CreateFileAndWriteTemplate(internalServerPath, projectPath, routesFile, "routes")
+	err = p.createFileAndWriteTemplate(internalServerPath, projectPath, routesFile, "routes")
 	if err != nil {
 		log.Printf("Failed to create and write to routes file at path %s: %v\n", internalServerPath, err)
 		return err
@@ -191,7 +194,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 }
 
 // cmd/api
-func (p *ProjectConfig) CreatePath(pathToCreate string, projectPath string) error {
+func (p *ProjectConfig) createPath(pathToCreate string, projectPath string) error {
 	if _, err := os.Stat(fmt.Sprintf("%s/%s", projectPath, pathToCreate)); os.IsNotExist(err) {
 		err := os.MkdirAll(fmt.Sprintf("%s/%s", projectPath, pathToCreate), 0751)
 		if err != nil {
@@ -203,7 +206,7 @@ func (p *ProjectConfig) CreatePath(pathToCreate string, projectPath string) erro
 	return nil
 }
 
-func (p *ProjectConfig) CreateFileAndWriteTemplate(pathToCreate string, projectPath string, fileName string, methodName string) error {
+func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectPath string, fileName string, methodName string) error {
 	createdFile, err := os.Create(fmt.Sprintf("%s/%s/%s", projectPath, pathToCreate, fileName))
 	if err != nil {
 		return err
@@ -214,13 +217,13 @@ func (p *ProjectConfig) CreateFileAndWriteTemplate(pathToCreate string, projectP
 	// inject template
 	switch methodName {
 	case "main":
-		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templater.Main())))
+		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templateGen.Main())))
 		err = createdTemplate.Execute(createdFile, p)
 	case "server":
-		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templater.Server())))
+		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templateGen.Server())))
 		err = createdTemplate.Execute(createdFile, p)
 	case "routes":
-		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templater.Routes())))
+		createdTemplate := template.Must(template.New(fileName).Parse(string(p.FrameworkMap[p.ProjectType].templateGen.Routes())))
 		err = createdTemplate.Execute(createdFile, p)
 	}
 
