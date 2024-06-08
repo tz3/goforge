@@ -1,4 +1,4 @@
-// Package web provides a set of functions common routers.
+// Package web provides a set of templates for the specified web router.
 package web
 
 // MakeHTTPServer returns a byte slice containing a Go source code template for an HTTP server.

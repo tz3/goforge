@@ -1,3 +1,4 @@
+// Package template provides a set of templates for the main function, HTTP server, README, and Makefile.
 package template
 
 // MakeTemplate returns a byte slice containing a Makefile template for a Go project.

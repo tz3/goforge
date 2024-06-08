@@ -1,4 +1,4 @@
-// Package template provides a set of templates for the main function, HTTP server, and Makefile.
+// Package template provides a set of templates for the main function, HTTP server, README, and Makefile.
 package template
 
 // MainTemplate returns a byte slice containing a Go source code template for the main function.

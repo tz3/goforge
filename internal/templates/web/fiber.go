@@ -1,4 +1,4 @@
-// Package web provides a set of templates for the Chi router.
+// Package web provides a set of templates for the specified web router.
 package web
 
 // FiberTemplate is a struct that provides methods to generate templates for a Fiber-based HTTP server.
