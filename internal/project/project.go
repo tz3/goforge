@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	tpl "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/web"
 )
 
 type ProjectConfig struct {
@@ -60,37 +61,37 @@ func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 func (p *ProjectConfig) createFrameworkMap() {
 	p.FrameworkMap["standard lib"] = WebFramework{
 		dependencies: []string{},
-		templateGen:  tpl.StandardLibraryTemplate{},
+		templateGen:  web.StandardLibraryTemplate{},
 	}
 
 	p.FrameworkMap["chi"] = WebFramework{
 		dependencies: chiDependencies,
-		templateGen:  tpl.ChiTemplate{},
+		templateGen:  web.ChiTemplate{},
 	}
 
 	p.FrameworkMap["gin"] = WebFramework{
 		dependencies: ginDependencies,
-		templateGen:  tpl.GinTemplate{},
+		templateGen:  web.GinTemplate{},
 	}
 
 	p.FrameworkMap["fiber"] = WebFramework{
 		dependencies: fiberDependencies,
-		templateGen:  tpl.FiberTemplate{},
+		templateGen:  web.FiberTemplate{},
 	}
 
 	p.FrameworkMap["gorilla/mux"] = WebFramework{
 		dependencies: gorillaDependencies,
-		templateGen:  tpl.GorillaTemplate{},
+		templateGen:  web.GorillaTemplate{},
 	}
 
 	p.FrameworkMap["httpRouter"] = WebFramework{
 		dependencies: routerDependencies,
-		templateGen:  tpl.HttpRouterTemplate{},
+		templateGen:  web.HttpRouterTemplate{},
 	}
 
 	p.FrameworkMap["echo"] = WebFramework{
 		dependencies: echoDependencies,
-		templateGen:  tpl.EchoTemplate{},
+		templateGen:  web.EchoTemplate{},
 	}
 
 }
@@ -156,6 +157,14 @@ func (p *ProjectConfig) CreateMainFile() error {
 		return err
 	}
 
+	readMeFile, err := os.Create(fmt.Sprintf("%s/README.md", projectPath))
+	if err != nil {
+		log.Printf("Failed to create README file at path %s: %v\n", projectPath, err)
+		cobra.CheckErr(err)
+		return err
+	}
+
+	defer readMeFile.Close()
 	defer makeFile.Close()
 
 	// inject makefile template
@@ -163,6 +172,14 @@ func (p *ProjectConfig) CreateMainFile() error {
 	err = makeFileTemplate.Execute(makeFile, p)
 	if err != nil {
 		log.Printf("Failed to execute makefile template: %v\n", err)
+		return err
+	}
+
+	// inject readmeFile template
+	readMeFileTemplate := template.Must(template.New("README").Parse(string(tpl.ReadmeTemplate())))
+	err = readMeFileTemplate.Execute(readMeFile, p)
+	if err != nil {
+		log.Printf("Failed to execute readMeFile template: %v\n", err)
 		return err
 	}
 
