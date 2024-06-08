@@ -1,12 +1,14 @@
-// Package template provides a set of templates for the Chi router.
-package template
+// Package web provides a set of templates for the Chi router.
+package web
+
+import template "github.com/tz3/goforge/internal/templates"
 
 // ChiTemplate is a struct that provides methods to generate templates for a Chi-based HTTP server.
 type ChiTemplate struct{}
 
 // Main returns the main template for the Chi-based HTTP server.
 func (c ChiTemplate) Main() []byte {
-	return MainTemplate()
+	return template.MainTemplate()
 }
 
 // Server returns the server template for the Chi-based HTTP server.

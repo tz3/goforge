@@ -1,12 +1,14 @@
-// Package template provides a set of templates for the Echo router.
-package template
+// Package web provides a set of templates for the Chi router.
+package web
+
+import template "github.com/tz3/goforge/internal/templates"
 
 // EchoTemplate is a struct that provides methods to generate templates for an Echo-based HTTP server.
 type EchoTemplate struct{}
 
 // Main returns the main template for the Echo-based HTTP server.
 func (e EchoTemplate) Main() []byte {
-	return MainTemplate()
+	return template.MainTemplate()
 }
 
 // Server returns the server template for the Echo-based HTTP server.

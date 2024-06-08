@@ -1,12 +1,14 @@
-// Package template provides a set of templates for the HttpRouter.
-package template
+// Package web provides a set of templates for the Chi router.
+package web
+
+import template "github.com/tz3/goforge/internal/templates"
 
 // HttpRouterTemplate is a struct that provides methods to generate templates for a HttpRouter-based HTTP server.
 type HttpRouterTemplate struct{}
 
 // Main returns the main template for the HttpRouter-based HTTP server.
 func (c HttpRouterTemplate) Main() []byte {
-	return MainTemplate()
+	return template.MainTemplate()
 }
 
 // Server returns the server template for the HttpRouter-based HTTP server.
