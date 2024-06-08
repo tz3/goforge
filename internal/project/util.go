@@ -1,3 +1,4 @@
+// Package project provides the functionality for creating a new Go project.
 package project
 
 import (

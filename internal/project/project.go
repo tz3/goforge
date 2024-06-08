@@ -1,3 +1,4 @@
+// Package project provides the functionality for creating a new Go project.
 package project
 
 import (
@@ -12,6 +13,9 @@ import (
 	"github.com/tz3/goforge/internal/templates/web"
 )
 
+// ProjectConfig represents the configuration for a new Go project.
+// It includes the project name, type, a map of web frameworks, a flag to indicate
+// whether to exit the CLI, and the absolute path of the project.
 type ProjectConfig struct {
 	ProjectName  string
 	ProjectType  string                  // Can be an api or serverless.
@@ -20,11 +24,15 @@ type ProjectConfig struct {
 	AbsolutePath string
 }
 
+// WebFramework represents a web framework that can be used in the project.
+// It includes the dependencies of the framework and a template generator.
 type WebFramework struct {
 	dependencies []string
 	templateGen  TemplateGenerator
 }
 
+// TemplateGenerator is an interface that defines the methods for generating
+// templates for the main, server, and routes files.
 type TemplateGenerator interface {
 	Main() []byte
 	Server() []byte
@@ -50,6 +58,7 @@ const (
 	routesFile         = "routes.go"
 )
 
+// ExitCLI releases the terminal and exits the program if the Exit flag is set.
 func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 	if p.Exit {
 		// logo render here
@@ -58,6 +67,7 @@ func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 	}
 }
 
+// createFrameworkMap initializes the FrameworkMap with the available web frameworks.
 func (p *ProjectConfig) createFrameworkMap() {
 	p.FrameworkMap["standard lib"] = WebFramework{
 		dependencies: []string{},
@@ -96,6 +106,9 @@ func (p *ProjectConfig) createFrameworkMap() {
 
 }
 
+// CreateMainFile creates the main file for the project.
+// It creates the project directory, initializes the Go module, installs the dependencies,
+// creates the necessary paths and files, and formats the Go code.
 func (p *ProjectConfig) CreateMainFile() error {
 	// check if AbsolutePath exists
 	if _, err := os.Stat(p.AbsolutePath); os.IsNotExist(err) {
@@ -210,7 +223,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	return nil
 }
 
-// cmd/api
+// createPath creates a new directory at the given path.
 func (p *ProjectConfig) createPath(pathToCreate string, projectPath string) error {
 	if _, err := os.Stat(fmt.Sprintf("%s/%s", projectPath, pathToCreate)); os.IsNotExist(err) {
 		err := os.MkdirAll(fmt.Sprintf("%s/%s", projectPath, pathToCreate), 0751)
@@ -223,6 +236,7 @@ func (p *ProjectConfig) createPath(pathToCreate string, projectPath string) erro
 	return nil
 }
 
+// createFileAndWriteTemplate creates a new file at the given path and writes a template to it.
 func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectPath string, fileName string, methodName string) error {
 	createdFile, err := os.Create(fmt.Sprintf("%s/%s/%s", projectPath, pathToCreate, fileName))
 	if err != nil {
