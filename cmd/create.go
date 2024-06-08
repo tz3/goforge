@@ -1,3 +1,4 @@
+// Package cmd provides the command line interface for the application.
 package cmd
 
 import (
@@ -15,6 +16,7 @@ import (
 	"github.com/tz3/goforge/internal/steps"
 )
 
+// logo is the ASCII representation of the application logo.
 const logo = `
 
 ░██████╗░░█████╗░███████╗░█████╗░██████╗░░██████╗░███████╗
@@ -26,15 +28,20 @@ const logo = `
 
 `
 
+// logoStyle and endingMsgStyle are lipgloss styles for rendering the logo and ending message.
 var (
 	logoStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF")).Bold(true)
 	endingMsgStyle = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("#FFD700")).Bold(true)
 )
 
+// init function adds the create command to the root command.
 func init() {
 	rootCmd.AddCommand(createCmd)
 }
 
+// createCmd is a cobra command that creates a new Go project.
+// It asks for the project name and other configurations via the CLI.
+// It then creates the main file for the project.
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a Go project and don't worry about the structure",
