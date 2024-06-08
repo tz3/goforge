@@ -1,7 +1,12 @@
+// Package steps defines the steps involved in setting up a Go project.
 package steps
 
 import "github.com/tz3/goforge/cmd/ui/textinput"
 
+// StepSchema represents a single step in the setup process.
+// It includes the name of the step, the options available in this step,
+// the headers to be displayed, and a pointer to the field where the user's
+// choice will be stored.
 type StepSchema struct {
 	StepName string
 	Options  []Option
@@ -9,20 +14,29 @@ type StepSchema struct {
 	Field    *string
 }
 
+// Option represents a single option that can be chosen in a step.
+// It includes the title of the option and a description.
 type Option struct {
 	Title string
 	Desc  string
 }
 
+// Steps is a collection of StepSchema. It represents all the steps
+// involved in the setup process.
 type Steps struct {
 	Steps []StepSchema
 }
 
+// Options represents the options for initializing the steps.
+// It includes the name of the project and the type of the project.
 type Options struct {
 	ProjectName *textinput.Output
 	ProjectType string
 }
 
+// InitSteps initializes the steps of the setup process.
+// It takes an Options struct as input and returns a pointer to a Steps struct.
+// The Steps struct includes all the steps involved in the setup process.
 func InitSteps(options *Options) *Steps {
 	steps := &Steps{
 		[]StepSchema{

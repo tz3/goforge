@@ -1,7 +1,8 @@
+// Package template provides a set of templates for the main function, HTTP server, README, and Makefile.
 package template
 
 func ReadmeTemplate() []byte {
-	return []byte(`# Project Title
+	return []byte(`# Project {{.ProjectName}}
 
 A brief description of what this project does and who it's for.
 

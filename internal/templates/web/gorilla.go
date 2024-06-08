@@ -1,4 +1,4 @@
-// Package web provides a set of templates for the Chi router.
+// Package web provides a set of templates for the specified web router.
 package web
 
 import template "github.com/tz3/goforge/internal/templates"
