@@ -39,17 +39,20 @@ type TemplateGenerator interface {
 	Routes() []byte
 }
 
-// Web framework dependencies
+// Todo:- add names of framework into const variable.
+
+// Web framework dependencies, and supported web-frameworks
 var (
-	chiDependencies     = []string{"github.com/go-chi/chi/v5"}
-	gorillaDependencies = []string{"github.com/gorilla/mux"}
-	routerDependencies  = []string{"github.com/julienschmidt/httprouter"}
-	ginDependencies     = []string{"github.com/gin-gonic/gin"}
-	fiberDependencies   = []string{"github.com/gofiber/fiber/v2"}
-	echoDependencies    = []string{"github.com/labstack/echo/v4", "github.com/labstack/echo/v4/middleware"}
+	SupportedWebframeworks = []string{"chi", "echo", "fiber", "gin", "gorilla/mux", "httpRouter", "standard-library"}
+	chiDependencies        = []string{"github.com/go-chi/chi/v5"}
+	gorillaDependencies    = []string{"github.com/gorilla/mux"}
+	routerDependencies     = []string{"github.com/julienschmidt/httprouter"}
+	ginDependencies        = []string{"github.com/gin-gonic/gin"}
+	fiberDependencies      = []string{"github.com/gofiber/fiber/v2"}
+	echoDependencies       = []string{"github.com/labstack/echo/v4", "github.com/labstack/echo/v4/middleware"}
 )
 
-// File paths and names
+// File paths and names.
 const (
 	cmdApiPath         = "cmd/api"
 	internalServerPath = "internal/server"
@@ -69,7 +72,7 @@ func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 
 // createFrameworkMap initializes the FrameworkMap with the available web frameworks.
 func (p *ProjectConfig) createFrameworkMap() {
-	p.FrameworkMap["standard lib"] = WebFramework{
+	p.FrameworkMap["standard-library"] = WebFramework{
 		dependencies: []string{},
 		templateGen:  web.StandardLibraryTemplate{},
 	}
@@ -140,7 +143,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	}
 
 	// we need to install the correct package
-	if p.ProjectType != "standard lib" {
+	if p.ProjectType != "standard-library" {
 		err = goGetDependencies(projectPath, p.FrameworkMap[p.ProjectType].dependencies)
 		if err != nil {
 			log.Printf("Failed to get package for project type %s: %v\n", p.ProjectType, err)
@@ -263,4 +266,15 @@ func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectP
 	}
 
 	return nil
+}
+
+// isValidWebFramework check if the input is supported or not
+func IsValidWebFramework(input string) bool {
+	fmt.Println(input)
+	for _, t := range SupportedWebframeworks {
+		if input == t {
+			return true
+		}
+	}
+	return false
 }

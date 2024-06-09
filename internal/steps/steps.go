@@ -44,7 +44,7 @@ func InitSteps(options *Options) *Steps {
 				StepName: "Go Project Framework",
 				Options: []Option{
 					{
-						Title: "standard lib",
+						Title: "standard-library",
 						Desc:  "Built in standard golang library",
 					},
 					{

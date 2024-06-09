@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -27,6 +28,10 @@ const logo = `
 ░╚═════╝░░╚════╝░╚═╝░░░░░░╚════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝
 
 `
+const (
+	flagProjectTitle        = "title"
+	flagProjectWebFramework = "framework"
+)
 
 // logoStyle and endingMsgStyle are lipgloss styles for rendering the logo and ending message.
 var (
@@ -37,6 +42,8 @@ var (
 // init function adds the create command to the root command.
 func init() {
 	rootCmd.AddCommand(createCmd)
+	createCmd.Flags().StringP(flagProjectTitle, "n", "", "Name of project to create")
+	createCmd.Flags().StringP(flagProjectWebFramework, "t", "", fmt.Sprintf("Type of web framework to create. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
 }
 
 // createCmd is a cobra command that creates a new Go project.
@@ -49,40 +56,52 @@ var createCmd = &cobra.Command{
 	and not the project structure. Perfect for someone new to the Go language`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-
 		options := steps.Options{
 			ProjectName: &textinput.Output{},
 		}
 
+		// check flags
+		flagTitle := cmd.Flag(flagProjectTitle).Value.String()
+		flagFramework := cmd.Flag(flagProjectWebFramework).Value.String()
+
+		// Todo:- more edge cases need to be covered!
+		if flagTitle != "" && !project.IsValidWebFramework(flagFramework) {
+			cobra.CheckErr(fmt.Errorf("web framework '%s' does not exist. supported webframeworks are: %s", flagFramework, strings.Join(project.SupportedWebframeworks, ", ")))
+		}
+
 		projectConfig := &project.ProjectConfig{
 			FrameworkMap: make(map[string]project.WebFramework),
+			ProjectName:  flagTitle,
+			ProjectType:  flagFramework,
 		}
 
 		steps := steps.InitSteps(&options)
 
 		fmt.Printf("%s\n", logoStyle.Render(logo))
 
-		tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
-		if _, err := tprogram.Run(); err != nil {
-			log.Printf("Failed to run the program: %v\n", err)
-			cobra.CheckErr(err)
-		}
-		projectConfig.ExitCLI(tprogram)
-
-		for _, step := range steps.Steps {
-			s := &multiinput.Selection{}
-			tprogram = tea.NewProgram(multiinput.InitialModelMulti(step.Options, s, step.Headers, projectConfig))
+		if projectConfig.ProjectName == "" && projectConfig.ProjectType == "" { // user didn't use flags
+			tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
 			if _, err := tprogram.Run(); err != nil {
-				log.Printf("Failed to run the program for step %s: %v\n", step.Headers, err)
+				log.Printf("Failed to run the program: %v\n", err)
 				cobra.CheckErr(err)
 			}
 			projectConfig.ExitCLI(tprogram)
 
-			*step.Field = s.Choice
+			for _, step := range steps.Steps {
+				s := &multiinput.Selection{}
+				tprogram = tea.NewProgram(multiinput.InitialModelMulti(step.Options, s, step.Headers, projectConfig))
+				if _, err := tprogram.Run(); err != nil {
+					log.Printf("Failed to run the program for step %s: %v\n", step.Headers, err)
+					cobra.CheckErr(err)
+				}
+				projectConfig.ExitCLI(tprogram)
+
+				*step.Field = s.Choice
+			}
+			projectConfig.ProjectName = options.ProjectName.Output
+			projectConfig.ProjectType = options.ProjectType
 		}
 
-		projectConfig.ProjectName = options.ProjectName.Output
-		projectConfig.ProjectType = options.ProjectType
 		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
 		currentWorkingDir, err := os.Getwd()
 		if err != nil {
