@@ -43,7 +43,7 @@ var (
 func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.Flags().StringP(flagProjectTitle, "n", "", "Name of project to create")
-	createCmd.Flags().StringP(flagProjectWebFramework, "t", "", fmt.Sprintf("Type of web framework to create. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
+	createCmd.Flags().StringP(flagProjectWebFramework, "t", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
 }
 
 // createCmd is a cobra command that creates a new Go project.
