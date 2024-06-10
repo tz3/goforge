@@ -4,7 +4,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "feat/add-release-workflow"
 
 permissions:
   contents: write
