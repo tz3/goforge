@@ -1,5 +1,4 @@
-# .github/workflows/release.yml
-name: Release
+name: Create Release
 
 on:
   push:
@@ -14,28 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.22.0'
-
-      - name: Install dependencies
-        run: go mod tidy
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Build
-        run: |
-          env GOOS=linux GOARCH=amd64 go build -o bin/go-blueprint-x86 main.go
-          env GOOS=linux GOARCH=arm64 go build -o bin/go-blueprint-arm main.go
-
-      - name: Create release
-        id: release
-        uses: softprops/action-gh-release@v1
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5.0.0
         with:
-          files: |
-            ./bin/*
+          distribution: goreleaser
+          version: ${{ env.GITHUB_REF_NAME }}
+          args: release --clean
+          workdir: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
