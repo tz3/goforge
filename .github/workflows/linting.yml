@@ -12,12 +12,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21.1'
+          go-version: '1.22.0'
 
       - name: Install dependencies
         run: |
-        go mod tidy
-        go mod download
+          go mod tidy
+          go mod download
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.7.0
