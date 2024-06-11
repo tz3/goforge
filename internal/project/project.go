@@ -179,7 +179,13 @@ func (p *ProjectConfig) CreateMainFile() error {
 		cobra.CheckErr(err)
 		return err
 	}
+	airTomlFile, err := os.Create(fmt.Sprintf("%s/.air.toml", projectPath))
+	if err != nil {
+		log.Printf("Failed to execute airToml template: %v\n", err)
+		return err
+	}
 
+	defer airTomlFile.Close()
 	defer readMeFile.Close()
 	defer makeFile.Close()
 
@@ -196,6 +202,13 @@ func (p *ProjectConfig) CreateMainFile() error {
 	err = readMeFileTemplate.Execute(readMeFile, p)
 	if err != nil {
 		log.Printf("Failed to execute readMeFile template: %v\n", err)
+		return err
+	}
+
+	// inject air.toml template
+	airTomlFileTemplate := template.Must(template.New("airtoml").Parse(string(tpl.AirTomlTemplate())))
+	err = airTomlFileTemplate.Execute(airTomlFile, p)
+	if err != nil {
 		return err
 	}
 
