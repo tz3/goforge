@@ -65,7 +65,11 @@ const (
 func (p *ProjectConfig) ExitCLI(tprogram *tea.Program) {
 	if p.Exit {
 		// logo render here
-		tprogram.ReleaseTerminal()
+		err := tprogram.ReleaseTerminal()
+		if err != nil {
+			log.Printf("Error in ReleaseTerminal %v\n", err)
+		}
+
 		os.Exit(1)
 	}
 }
