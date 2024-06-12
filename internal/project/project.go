@@ -113,6 +113,7 @@ func (p *ProjectConfig) createFrameworkMap() {
 
 }
 
+// Todo: Decompose this function into smaller ones.
 // CreateMainFile creates the main file for the project.
 // It creates the project directory, initializes the Go module, installs the dependencies,
 // creates the necessary paths and files, and formats the Go code.
@@ -142,6 +143,13 @@ func (p *ProjectConfig) CreateMainFile() error {
 	err := initGoMod(p.ProjectName, projectPath)
 	if err != nil {
 		log.Printf("Failed to initialize Go module: %v\n", err)
+		cobra.CheckErr(err)
+		return err
+	}
+
+	err = initGitRepo(projectPath)
+	if err != nil {
+		log.Printf("Failed to initialize git repo: %v\n", err)
 		cobra.CheckErr(err)
 		return err
 	}
@@ -183,15 +191,23 @@ func (p *ProjectConfig) CreateMainFile() error {
 		cobra.CheckErr(err)
 		return err
 	}
+
 	airTomlFile, err := os.Create(fmt.Sprintf("%s/.air.toml", projectPath))
 	if err != nil {
-		log.Printf("Failed to execute airToml template: %v\n", err)
+		log.Printf("Failed to create .air.toml file: %v\n", err)
 		return err
 	}
 
-	defer airTomlFile.Close()
+	gitIgnoreFile, err := os.Create(fmt.Sprintf("%s/.gitignore", projectPath))
+	if err != nil {
+		log.Printf("Failed to execute .gitignore file: %v\n", err)
+		return err
+	}
+
 	defer readMeFile.Close()
 	defer makeFile.Close()
+	defer airTomlFile.Close()
+	defer gitIgnoreFile.Close()
 
 	// inject makefile template
 	makeFileTemplate := template.Must(template.New("makefile").Parse(string(tpl.MakeTemplate())))
@@ -212,6 +228,13 @@ func (p *ProjectConfig) CreateMainFile() error {
 	// inject air.toml template
 	airTomlFileTemplate := template.Must(template.New("airtoml").Parse(string(tpl.AirTomlTemplate())))
 	err = airTomlFileTemplate.Execute(airTomlFile, p)
+	if err != nil {
+		return err
+	}
+
+	// inject .gitignore template
+	gitIgnoreFileTemplate := template.Must(template.New(".gitignore").Parse(string(tpl.GitIgnore())))
+	err = gitIgnoreFileTemplate.Execute(gitIgnoreFile, p)
 	if err != nil {
 		return err
 	}

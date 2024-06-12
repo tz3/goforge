@@ -30,6 +30,15 @@ func initGoMod(projectName string, appDir string) error {
 	return nil
 }
 
+// initGitRepo will initialize git repo in a specific directory
+func initGitRepo(projectPath string) error {
+	err := executeCmd("git", []string{"init"}, projectPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // goGetDependencies fetches the specified Go packages/dependencies and updates it.
 // It returns an error if the package fetching fails.
 func goGetDependencies(appDir string, packages []string) error {
