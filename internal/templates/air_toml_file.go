@@ -6,10 +6,11 @@ func AirTomlTemplate() []byte {
 root = "."
 testdata_dir = "testdata"
 tmp_dir = "tmp"
+
 [build]
   args_bin = []
   bin = "./tmp/cmd/api/main"
-  cmd = "make run"
+  cmd = "go build -o ./tmp/cmd/api/main ./cmd/api"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -30,19 +31,23 @@ tmp_dir = "tmp"
   rerun_delay = 500
   send_interrupt = false
   stop_on_error = false
+
 [color]
   app = ""
   build = "yellow"
   main = "magenta"
   runner = "green"
   watcher = "cyan"
+
 [log]
   main_only = false
   time = false
+
 [misc]
   clean_on_exit = false
+
 [screen]
   clear_on_rebuild = false
   keep_scroll = true
-        `)
+`)
 }
