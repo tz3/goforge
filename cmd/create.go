@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/tz3/goforge/cmd/ui/multiinput"
 	"github.com/tz3/goforge/cmd/ui/textinput"
@@ -28,15 +29,19 @@ const logo = `
 ░╚═════╝░░╚════╝░╚═╝░░░░░░╚════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝
 
 `
+
 const (
+	defaultProjectTitle     = "goforge"
 	flagProjectTitle        = "title"
 	flagProjectWebFramework = "framework"
 )
 
 // logoStyle and endingMsgStyle are lipgloss styles for rendering the logo and ending message.
 var (
-	logoStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF")).Bold(true)
-	endingMsgStyle = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("#FFD700")).Bold(true)
+	logoStyle                   = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("#00BFFF")).Bold(true)
+	endingMsgStyle              = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("#FFD700")).Bold(true).Underline(true)
+	endingMsgStyleWithUnderline = endingMsgStyle.Underline(true)
+	tipMessageStyle             = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("190")).Background(lipgloss.Color("235")).Italic(true)
 )
 
 // init function adds the create command to the root command.
@@ -52,7 +57,7 @@ func init() {
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a Go project and don't worry about the structure",
-	Long: `Go Blueprint is a CLI tool that allows you to focus on the actual Go code, 
+	Long: `GoForge is a CLI tool that allows you to focus on the actual Go code, 
 	and not the project structure. Perfect for someone new to the Go language`,
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -60,19 +65,21 @@ var createCmd = &cobra.Command{
 			ProjectName: &textinput.Output{},
 		}
 
+		isInteractive := !hasChangedFlag(cmd.Flags())
+
 		// check flags
-		flagTitle := cmd.Flag(flagProjectTitle).Value.String()
-		flagFramework := cmd.Flag(flagProjectWebFramework).Value.String()
+		flagTitleValue := cmd.Flag(flagProjectTitle).Value.String()
+		flagFrameworkValue := cmd.Flag(flagProjectWebFramework).Value.String()
 
 		// Todo:- more edge cases need to be covered!
-		if flagTitle != "" && !project.IsValidWebFramework(flagFramework) {
-			cobra.CheckErr(fmt.Errorf("web framework '%s' does not exist. supported webframeworks are: %s", flagFramework, strings.Join(project.SupportedWebframeworks, ", ")))
+		if flagTitleValue != "" && !project.IsValidWebFramework(flagFrameworkValue) {
+			cobra.CheckErr(fmt.Errorf("web framework '%s' does not exist. supported webframeworks are: %s", flagFrameworkValue, strings.Join(project.SupportedWebframeworks, ", ")))
 		}
 
 		projectConfig := &project.ProjectConfig{
 			FrameworkMap: make(map[string]project.WebFramework),
-			ProjectName:  flagTitle,
-			ProjectType:  flagFramework,
+			ProjectName:  flagTitleValue,
+			ProjectType:  flagFrameworkValue,
 		}
 
 		steps := steps.InitSteps(&options)
@@ -100,6 +107,9 @@ var createCmd = &cobra.Command{
 			}
 			projectConfig.ProjectName = options.ProjectName.Output
 			projectConfig.ProjectType = options.ProjectType
+
+			setFlagValue(cmd, flagProjectTitle, projectConfig.ProjectName)
+			setFlagValue(cmd, flagProjectWebFramework, projectConfig.ProjectType)
 		}
 
 		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
@@ -118,9 +128,57 @@ var createCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
+		fmt.Println("")
+
 		fmt.Printf("%s\n%s cd %s\n",
 			endingMsgStyle.Render("To get into the project directory:"),
 			endingMsgStyle.Render(multiinput.Bullet),
-			endingMsgStyle.Render(projectConfig.ProjectName))
+			endingMsgStyleWithUnderline.Render(projectConfig.ProjectName))
+
+		fmt.Println("")
+
+		if isInteractive {
+			nonInterActiveCmd := nonInteractiveCommand(cmd.Flags())
+			fmt.Println(tipMessageStyle.Render("Tip: Repeat the equivalent cmd with the following non-interactive command:"))
+			fmt.Println(tipMessageStyle.Italic(false).Render(fmt.Sprintf("• %s\n", nonInterActiveCmd)))
+		}
 	},
+}
+
+// nonInteractiveCommand takes a pointer to a pflag.FlagSet as an argument.
+// It iterates over all flags in the FlagSet, excluding the "help" flag, and constructs a command string.
+// This command string represents the equivalent non-interactive shell command for the given FlagSet.
+// The function returns this command string.
+// The flags in the FlagSet are not sorted before the iteration.
+func nonInteractiveCommand(flagSet *pflag.FlagSet) string {
+	nonInteractiveCommand := defaultProjectTitle
+	visitFn := func(flag *pflag.Flag) {
+		if flag.Name != "help" {
+			nonInteractiveCommand = fmt.Sprintf("%s --%s %s", nonInteractiveCommand, flag.Name, flag.Value.String())
+		}
+	}
+
+	flagSet.SortFlags = false
+	flagSet.VisitAll(visitFn)
+
+	return nonInteractiveCommand
+}
+
+// hasChangedFlag takes a pointer to a pflag.FlagSet as an argument.
+// It checks if any flag in the FlagSet has been set by the user.
+// The function returns true if at least one flag has been set, and false otherwise.
+func hasChangedFlag(flagSet *pflag.FlagSet) bool {
+	hasChangedFlag := false
+	flagSet.Visit(func(_ *pflag.Flag) {
+		hasChangedFlag = true
+	})
+	return hasChangedFlag
+}
+
+// setFlagValue will set cmd flag value for specific flagName
+func setFlagValue(cmd *cobra.Command, flagName string, value string) {
+	err := cmd.Flag(flagName).Value.Set(value)
+	if err != nil {
+		log.Printf("Failed to set %s in cmd flags %v\n", flagName, err)
+	}
 }
