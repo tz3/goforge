@@ -108,8 +108,8 @@ var createCmd = &cobra.Command{
 			projectConfig.ProjectName = options.ProjectName.Output
 			projectConfig.ProjectType = options.ProjectType
 
-			cmd.Flag(flagProjectTitle).Value.Set(projectConfig.ProjectName)
-			cmd.Flag(flagProjectWebFramework).Value.Set(projectConfig.ProjectType)
+			setFlagValue(cmd, flagProjectTitle, projectConfig.ProjectName)
+			setFlagValue(cmd, flagProjectWebFramework, projectConfig.ProjectType)
 		}
 
 		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
@@ -173,4 +173,12 @@ func hasChangedFlag(flagSet *pflag.FlagSet) bool {
 		hasChangedFlag = true
 	})
 	return hasChangedFlag
+}
+
+// setFlagValue will set cmd flag value for specific flagName
+func setFlagValue(cmd *cobra.Command, flagName string, value string) {
+	err := cmd.Flag(flagName).Value.Set(value)
+	if err != nil {
+		log.Printf("Failed to set %s in cmd flags %v\n", flagName, err)
+	}
 }
