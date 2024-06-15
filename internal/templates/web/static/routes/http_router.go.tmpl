@@ -27,6 +27,9 @@ func (s *Server) helloWorldHandler(w http.ResponseWriter, r *http.Request) {
         log.Fatalf("error handling JSON marshal. Err: %v", err)
     }
 
-    w.Write(jsonResp)
+    _, err := w.Write(jsonResp)
+    if err != nil {
+        log.Fatalf("error writing response. Err: %v", err)
+    }
 }
 
