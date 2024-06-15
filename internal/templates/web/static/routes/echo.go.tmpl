@@ -1,0 +1,23 @@
+package server
+    import (
+        "net/http"
+    
+        "github.com/labstack/echo/v4"
+        "github.com/labstack/echo/v4/middleware"
+    )
+// RegisterRoutes creates a new Echo router, registers a hello world handler to the root path,
+// and returns the router.
+func (s *Server) RegisterRoutes() http.Handler {
+    e := echo.New()
+    e.Use(middleware.Logger())
+    e.Use(middleware.Recover())
+    e.GET("/", s.helloWorldHandler)
+    return e
+}
+// helloWorldHandler is an HTTP handler that responds with a JSON containing a hello world message.
+func (s *Server) helloWorldHandler(c echo.Context) error {
+    resp := map[string]string{
+        "message": "Hello World",
+    }
+    return c.JSON(http.StatusOK, resp)
+}

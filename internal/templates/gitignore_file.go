@@ -1,36 +1,7 @@
 // Package template provides a set of templates for the main function, HTTP server, README, and Makefile.
 package template
 
-// MainTemplate returns a byte slice containing a Go source code template for the main function.
-// The main function creates a new server and starts it.
-func GitIgnore() []byte {
-	return []byte(
-		`# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+import _ "embed"
 
-# Test binary, built with ` + `go test -c` + `
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-go.work.sum
-
-# env file
-.env
-
-#vscode
-.vscode`)
-}
+//go:embed static/.gitignore.tmpl
+var GitIgnoreTemplate []byte
