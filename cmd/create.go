@@ -47,8 +47,8 @@ var (
 // init function adds the create command to the root command.
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.Flags().StringP(flagProjectTitle, "n", "", "Name of project to create")
-	createCmd.Flags().StringP(flagProjectWebFramework, "t", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
+	createCmd.Flags().StringP(flagProjectTitle, "t", "", "title/name of project to create")
+	createCmd.Flags().StringP(flagProjectWebFramework, "f", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
 }
 
 // createCmd is a cobra command that creates a new Go project.

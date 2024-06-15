@@ -31,7 +31,7 @@ jobs:
         with:
           go-version: ${{ matrix.goVersion }}
       - name: build templates
-        run: go run main.go create -n ${{ matrix.framework }} -f ${{ matrix.framework}}
+        run: go run main.go create -t ${{ matrix.framework }} -f ${{ matrix.framework}}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
