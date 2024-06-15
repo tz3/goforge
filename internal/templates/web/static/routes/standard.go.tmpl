@@ -1,0 +1,30 @@
+package server
+
+import (
+    "net/http"
+    "encoding/json"
+    "log"
+)
+
+// RegisterRoutes creates a new standard library HTTP ServeMux, registers a hello world handler to the root path,
+// and returns the ServeMux.
+func (s *Server) RegisterRoutes() http.Handler {
+
+    mux := http.NewServeMux()
+    mux.HandleFunc("/", s.handler)
+
+    return mux
+}
+
+// handler is an HTTP handler that responds with a JSON containing a hello world message.
+func (s *Server) handler(w http.ResponseWriter, r *http.Request) {
+    resp := make(map[string]string)
+    resp["message"] = "Hello World"
+
+    jsonResp, err := json.Marshal(resp)
+    if err != nil {
+        log.Fatalf("error handling JSON marshal. Err: %v", err)
+    }
+
+    w.Write(jsonResp)
+}

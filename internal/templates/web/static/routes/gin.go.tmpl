@@ -1,0 +1,25 @@
+package server
+
+import (
+    "net/http"
+
+    "github.com/gin-gonic/gin"
+)
+
+// RegisterRoutes creates a new Gin router, registers a hello world handler to the root path,
+// and returns the router.
+func (s *Server) RegisterRoutes() http.Handler {
+    r := gin.Default()
+
+    r.GET("/", s.helloWorldHandler)
+
+    return r
+}
+
+// helloWorldHandler is an HTTP handler that responds with a JSON containing a hello world message.
+func (s *Server) helloWorldHandler(c *gin.Context) {
+    resp := make(map[string]string)
+    resp["message"] = "Hello World"
+
+    c.JSON(http.StatusOK, resp)
+}

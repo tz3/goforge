@@ -210,7 +210,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	defer gitIgnoreFile.Close()
 
 	// inject makefile template
-	makeFileTemplate := template.Must(template.New("makefile").Parse(string(tpl.MakeTemplate())))
+	makeFileTemplate := template.Must(template.New("makefile").Parse(string(tpl.MakeTemplate)))
 	err = makeFileTemplate.Execute(makeFile, p)
 	if err != nil {
 		log.Printf("Failed to execute makefile template: %v\n", err)
@@ -218,7 +218,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 	}
 
 	// inject readmeFile template
-	readMeFileTemplate := template.Must(template.New("README").Parse(string(tpl.ReadmeTemplate())))
+	readMeFileTemplate := template.Must(template.New("README").Parse(string(tpl.ReadmeTemplate)))
 	err = readMeFileTemplate.Execute(readMeFile, p)
 	if err != nil {
 		log.Printf("Failed to execute readMeFile template: %v\n", err)
@@ -226,14 +226,14 @@ func (p *ProjectConfig) CreateMainFile() error {
 	}
 
 	// inject air.toml template
-	airTomlFileTemplate := template.Must(template.New("airtoml").Parse(string(tpl.AirTomlTemplate())))
+	airTomlFileTemplate := template.Must(template.New("airtoml").Parse(string(tpl.AirTomlTemplate)))
 	err = airTomlFileTemplate.Execute(airTomlFile, p)
 	if err != nil {
 		return err
 	}
 
 	// inject .gitignore template
-	gitIgnoreFileTemplate := template.Must(template.New(".gitignore").Parse(string(tpl.GitIgnore())))
+	gitIgnoreFileTemplate := template.Must(template.New(".gitignore").Parse(string(tpl.GitIgnoreTemplate)))
 	err = gitIgnoreFileTemplate.Execute(gitIgnoreFile, p)
 	if err != nil {
 		return err
