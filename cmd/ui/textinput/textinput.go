@@ -1,6 +1,7 @@
 package textinput
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -10,7 +11,8 @@ import (
 )
 
 var (
-	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color("#00BFFF")).Foreground(lipgloss.Color("#FFFFFF")).Bold(true).Padding(0, 1, 0)
+	titleStyle        = lipgloss.NewStyle().Background(lipgloss.Color("#00BFFF")).Foreground(lipgloss.Color("#FFFFFF")).Bold(true).Padding(0, 1, 0)
+	errorMessageStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000")).Bold(true).Padding(0, 0, 0)
 )
 
 type (
@@ -84,4 +86,30 @@ func (m model) View() string {
 		m.header,
 		m.textInput.View(),
 	)
+}
+
+// CreateErrorModel generates a model for handling error input.
+// It initializes a new text input, sets focus on it, and limits the character input to 156.
+// The width of the text input is set to 20.
+// It returns a model with the initialized text input, the error message, and an exit flag set to true.
+func CreateErrorModel(err error) model {
+	textInput := textinput.New()
+	textInput.Focus()
+	textInput.CharLimit = 156
+	textInput.Width = 20
+	exitFlag := true
+
+	return model{
+		textInput: textInput,
+		err:       errors.New(errorMessageStyle.Render(err.Error())),
+		output:    nil,
+		header:    "",
+		exit:      &exitFlag,
+	}
+}
+
+// Error returns the error message of the model.
+// It is a method of the model type.
+func (m model) Error() string {
+	return m.err.Error()
 }

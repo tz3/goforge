@@ -31,9 +31,9 @@ const logo = `
 `
 
 const (
-	defaultProjectTitle     = "goforge"
-	flagProjectTitle        = "title"
-	flagProjectWebFramework = "framework"
+	defaultProjectTitle        = "goforge"
+	flagProjectTitleKey        = "title"
+	flagProjectWebFrameworkKey = "framework"
 )
 
 // logoStyle and endingMsgStyle are lipgloss styles for rendering the logo and ending message.
@@ -47,8 +47,8 @@ var (
 // init function adds the create command to the root command.
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.Flags().StringP(flagProjectTitle, "t", "", "title/name of project to create")
-	createCmd.Flags().StringP(flagProjectWebFramework, "f", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
+	createCmd.Flags().StringP(flagProjectTitleKey, "t", "", "title/name of project to create")
+	createCmd.Flags().StringP(flagProjectWebFrameworkKey, "f", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
 }
 
 // createCmd is a cobra command that creates a new Go project.
@@ -68,12 +68,18 @@ var createCmd = &cobra.Command{
 		isInteractive := !hasChangedFlag(cmd.Flags())
 
 		// check flags
-		flagTitleValue := cmd.Flag(flagProjectTitle).Value.String()
-		flagFrameworkValue := cmd.Flag(flagProjectWebFramework).Value.String()
+		flagTitleValue := cmd.Flag(flagProjectTitleKey).Value.String()
+		flagFrameworkValue := cmd.Flag(flagProjectWebFrameworkKey).Value.String()
 
 		// Todo:- more edge cases need to be covered!
-		if flagTitleValue != "" && !project.IsValidWebFramework(flagFrameworkValue) {
-			cobra.CheckErr(fmt.Errorf("web framework '%s' does not exist. supported webframeworks are: %s", flagFrameworkValue, strings.Join(project.SupportedWebframeworks, ", ")))
+		if flagTitleValue != "" {
+			if !project.IsValidWebFramework(flagFrameworkValue) {
+				err := fmt.Errorf("web framework '%s' does not exist. supported webframeworks are: %s", flagFrameworkValue, strings.Join(project.SupportedWebframeworks, ", "))
+				cobra.CheckErr(textinput.CreateErrorModel(err).Error())
+			} else if isDirectoryNonEmpty(flagTitleValue) {
+				err := fmt.Errorf("directory '%s' already exists. Please choose a different name", flagTitleValue)
+				cobra.CheckErr(textinput.CreateErrorModel(err).Error())
+			}
 		}
 
 		projectConfig := &project.ProjectConfig{
@@ -90,7 +96,7 @@ var createCmd = &cobra.Command{
 			tprogram := tea.NewProgram(textinput.InitialTextInputModel(options.ProjectName, "What is the name of your project?", projectConfig))
 			if _, err := tprogram.Run(); err != nil {
 				log.Printf("Failed to run the program: %v\n", err)
-				cobra.CheckErr(err)
+				cobra.CheckErr(textinput.CreateErrorModel(err).Error())
 			}
 			projectConfig.ExitCLI(tprogram)
 
@@ -99,7 +105,7 @@ var createCmd = &cobra.Command{
 				tprogram = tea.NewProgram(multiinput.InitialModelMulti(step.Options, s, step.Headers, projectConfig))
 				if _, err := tprogram.Run(); err != nil {
 					log.Printf("Failed to run the program for step %s: %v\n", step.Headers, err)
-					cobra.CheckErr(err)
+					cobra.CheckErr(textinput.CreateErrorModel(err).Error())
 				}
 				projectConfig.ExitCLI(tprogram)
 
@@ -108,15 +114,15 @@ var createCmd = &cobra.Command{
 			projectConfig.ProjectName = options.ProjectName.Output
 			projectConfig.ProjectType = options.ProjectType
 
-			setFlagValue(cmd, flagProjectTitle, projectConfig.ProjectName)
-			setFlagValue(cmd, flagProjectWebFramework, projectConfig.ProjectType)
+			setFlagValue(cmd, flagProjectTitleKey, projectConfig.ProjectName)
+			setFlagValue(cmd, flagProjectWebFrameworkKey, projectConfig.ProjectType)
 		}
 
 		fmt.Printf("The project router framework is: %s\n", projectConfig.ProjectType)
 		currentWorkingDir, err := os.Getwd()
 		if err != nil {
 			log.Printf("Failed to get the current working directory: %v\n", err)
-			cobra.CheckErr(err)
+			cobra.CheckErr(textinput.CreateErrorModel(err).Error())
 		}
 
 		projectConfig.AbsolutePath = currentWorkingDir
@@ -125,7 +131,7 @@ var createCmd = &cobra.Command{
 		err = projectConfig.CreateMainFile()
 		if err != nil {
 			log.Printf("Failed to create the main file: %v\n", err)
-			cobra.CheckErr(err)
+			cobra.CheckErr(textinput.CreateErrorModel(err).Error())
 		}
 
 		fmt.Println("")
@@ -181,4 +187,18 @@ func setFlagValue(cmd *cobra.Command, flagName string, value string) {
 	if err != nil {
 		log.Printf("Failed to set %s in cmd flags %v\n", flagName, err)
 	}
+}
+
+// isDirectoryNonEmpty checks if a directory exists and isn't empty.
+// It returns true if the directory has entries, and false otherwise.
+func isDirectoryNonEmpty(dirName string) bool {
+	if _, err := os.Stat(dirName); err == nil {
+		dirEntries, err := os.ReadDir(dirName)
+		if err != nil {
+			log.Printf("could not read directory: %v", err)
+			cobra.CheckErr(textinput.CreateErrorModel(err))
+		}
+		return len(dirEntries) > 0
+	}
+	return false
 }
