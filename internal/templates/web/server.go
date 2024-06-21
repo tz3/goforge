@@ -4,4 +4,4 @@ package web
 import _ "embed"
 
 //go:embed static/server/standard.go.tmpl
-var MakeHTTPServer []byte
+var standardServerTemplate []byte

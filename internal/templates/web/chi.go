@@ -7,6 +7,12 @@ import (
 	template "github.com/tz3/goforge/internal/templates"
 )
 
+//go:embed static/routes/chi.go.tmpl
+var chiRoutes []byte
+
+//go:embed static/db/routes/chi.go.tmpl
+var chiDatabaseRoutesTemplate []byte
+
 // ChiTemplate is a struct that provides methods to generate templates for a Chi-based HTTP server.
 type ChiTemplate struct{}
 
@@ -17,13 +23,18 @@ func (c ChiTemplate) Main() []byte {
 
 // Server returns the server template for the Chi-based HTTP server.
 func (c ChiTemplate) Server() []byte {
-	return MakeHTTPServer
+	return standardServerTemplate
 }
-
-//go:embed static/routes/chi.go.tmpl
-var MakeChiRoutes []byte
 
 // Routes returns the routes template for the Chi-based HTTP server.
 func (c ChiTemplate) Routes() []byte {
-	return MakeChiRoutes
+	return chiRoutes
+}
+
+func (s ChiTemplate) ServerWithDB() []byte {
+	return standardDatabaseServerTemplate
+}
+
+func (s ChiTemplate) RoutesWithDB() []byte {
+	return chiDatabaseRoutesTemplate
 }

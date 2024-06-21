@@ -3,7 +3,6 @@ package textinput
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -37,10 +36,6 @@ type model struct {
 }
 
 func InitialTextInputModel(output *Output, header string, program *program.ProjectConfig) model {
-	if !isValidInput(header) || header == "" {
-		return CreateErrorModel(errors.New("input contains non-alphanumeric characters"))
-	}
-
 	ti := textinput.New()
 	ti.Focus()
 	ti.CharLimit = 156
@@ -117,11 +112,4 @@ func CreateErrorModel(err error) model {
 // It is a method of the model type.
 func (m model) Error() string {
 	return m.err.Error()
-}
-
-// isValidInput checks if a string only contains alphanumeric characters.
-func isValidInput(input string) bool {
-	// accept only normal english chars + numbers
-	match, _ := regexp.MatchString("^[a-zA-Z0-9]*$", input)
-	return match
 }

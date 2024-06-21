@@ -7,6 +7,15 @@ import (
 	template "github.com/tz3/goforge/internal/templates"
 )
 
+//go:embed static/routes/standard.go.tmpl
+var standardHTTPRoutes []byte
+
+//go:embed static/db/routes/standard.go.tmpl
+var standardDatabaseRoutesTemplate []byte
+
+//go:embed static/db/server/standard.go.tmpl
+var standardDatabaseServerTemplate []byte
+
 // StandardLibraryTemplate is a struct that provides methods to generate templates for a standard library-based HTTP server.
 type StandardLibraryTemplate struct{}
 
@@ -17,13 +26,18 @@ func (c StandardLibraryTemplate) Main() []byte {
 
 // Server returns the server template for the standard library-based HTTP server.
 func (c StandardLibraryTemplate) Server() []byte {
-	return MakeHTTPServer
+	return standardServerTemplate
 }
 
 // Routes returns the routes template for the standard library-based HTTP server.
 func (c StandardLibraryTemplate) Routes() []byte {
-	return MakeHTTPRoutes
+	return standardHTTPRoutes
 }
 
-//go:embed static/routes/standard.go.tmpl
-var MakeHTTPRoutes []byte
+func (s StandardLibraryTemplate) ServerWithDB() []byte {
+	return standardDatabaseServerTemplate
+}
+
+func (s StandardLibraryTemplate) RoutesWithDB() []byte {
+	return standardDatabaseRoutesTemplate
+}

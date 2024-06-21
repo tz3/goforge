@@ -7,6 +7,12 @@ import (
 	template "github.com/tz3/goforge/internal/templates"
 )
 
+//go:embed static/routes/gorilla.go.tmpl
+var gorillaRoutes []byte
+
+//go:embed static/db/routes/gorilla.go.tmpl
+var gorillaDatabaseRoutesTemplate []byte
+
 // GorillaTemplate is a struct that provides methods to generate templates for a Gorilla-based HTTP server.
 type GorillaTemplate struct{}
 
@@ -17,13 +23,18 @@ func (c GorillaTemplate) Main() []byte {
 
 // Server returns the server template for the Gorilla-based HTTP server.
 func (c GorillaTemplate) Server() []byte {
-	return MakeHTTPServer
+	return standardServerTemplate
 }
 
 // Routes returns the routes template for the Gorilla-based HTTP server.
 func (c GorillaTemplate) Routes() []byte {
-	return MakeGorillaRoutes
+	return gorillaRoutes
 }
 
-//go:embed static/routes/gorilla.go.tmpl
-var MakeGorillaRoutes []byte
+func (s GorillaTemplate) ServerWithDB() []byte {
+	return standardDatabaseServerTemplate
+}
+
+func (s GorillaTemplate) RoutesWithDB() []byte {
+	return gorillaDatabaseRoutesTemplate
+}

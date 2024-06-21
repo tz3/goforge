@@ -21,7 +21,9 @@ jobs:
     strategy:
       matrix:
         framework:
-          [chi, echo, fiber, gin, gorilla/mux, httpRouter, standard-library]
+          [chi, echo, fiber, gin, gorilla/mux, httprouter, standard-library]
+        driver:
+          [mysql, none]
         goVersion: ["1.22"]
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +33,7 @@ jobs:
         with:
           go-version: ${{ matrix.goVersion }}
       - name: build templates
-        run: go run main.go create -t ${{ matrix.framework }} -f ${{ matrix.framework}}
+        run: go run main.go create -t ${{ matrix.framework }} -f ${{ matrix.framework}} -d ${{ matrix.driver }}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
