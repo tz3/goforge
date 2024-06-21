@@ -1,8 +1,6 @@
 // Package steps defines the steps involved in setting up a Go project.
 package steps
 
-import "github.com/tz3/goforge/cmd/ui/textinput"
-
 // StepSchema represents a single step in the setup process.
 // It includes the name of the step, the options available in this step,
 // the headers to be displayed, and a pointer to the field where the user's
@@ -24,24 +22,16 @@ type Option struct {
 // Steps is a collection of StepSchema. It represents all the steps
 // involved in the setup process.
 type Steps struct {
-	Steps []StepSchema
-}
-
-// Options represents the options for initializing the steps.
-// It includes the name of the project and the type of the project.
-type Options struct {
-	ProjectName *textinput.Output
-	ProjectType string
+	Steps map[string]StepSchema
 }
 
 // InitSteps initializes the steps of the setup process.
-// It takes an Options struct as input and returns a pointer to a Steps struct.
 // The Steps struct includes all the steps involved in the setup process.
-func InitSteps(options *Options) *Steps {
+func InitSteps() *Steps {
 	steps := &Steps{
-		[]StepSchema{
-			{
-				StepName: "Go Project Framework",
+		map[string]StepSchema{
+			"web-framework": {
+				StepName: "Web Framework",
 				Options: []Option{
 					{
 						Title: "standard-library",
@@ -64,7 +54,7 @@ func InitSteps(options *Options) *Steps {
 						Desc:  "use gorilla/mux from: https://github.com/gorilla/mux",
 					},
 					{
-						Title: "httpRouter",
+						Title: "httprouter",
 						Desc:  "use julienschmidt/httprouter from: https://github.com/julienschmidt/httprouter",
 					},
 					{
@@ -72,8 +62,21 @@ func InitSteps(options *Options) *Steps {
 						Desc:  "use echo from: https://github.com/labstack/echo",
 					},
 				},
-				Headers: "What framework do you want to use in your Go project?",
-				Field:   &options.ProjectType,
+				Headers: "What web framework do you want to use in your Go project?",
+			},
+			"db-driver": {
+				StepName: "Database Driver",
+				Options: []Option{
+					{
+						Title: "mysql",
+						Desc:  "use go-mysql-driver from: https://github.com/go-sql-driver/mysql",
+					},
+					{
+						Title: "none",
+						Desc:  "Project with no Database setup!",
+					},
+				},
+				Headers: "What database driver do you want to use in your Go project?",
 			},
 		},
 	}

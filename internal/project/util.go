@@ -63,3 +63,13 @@ func goFormat(appDir string) error {
 
 	return nil
 }
+
+// goTidy runs 'go mod tidy' in the appDir directory.
+// Returns an error if the command fails.
+func goTidy(appDir string) error {
+	err := executeCmd("go", []string{"mod", "tidy"}, appDir)
+	if err != nil {
+		return err
+	}
+	return nil
+}

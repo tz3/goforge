@@ -1,10 +1,10 @@
-package textinput
+package cmd
 
 import (
 	"testing"
 )
 
-func TestIsValidInput(t *testing.T) {
+func TestIsValidProjectName(t *testing.T) {
 	tests := []struct {
 		name string
 		arg  string
@@ -44,7 +44,7 @@ func TestIsValidInput(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isValidInput(tt.arg); got != tt.want {
+			if got := isValidProjectName(tt.arg); got != tt.want {
 				t.Errorf("isValidInput() = %v, want %v", got, tt.want)
 			}
 		})

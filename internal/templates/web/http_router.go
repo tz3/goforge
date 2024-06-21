@@ -7,6 +7,12 @@ import (
 	template "github.com/tz3/goforge/internal/templates"
 )
 
+//go:embed static/routes/http_router.go.tmpl
+var httpRouterRoutesTemplate []byte
+
+//go:embed static/db/routes/http_router.go.tmpl
+var httpDBRouterRoutesTemplate []byte
+
 // HttpRouterTemplate is a struct that provides methods to generate templates for a HttpRouter-based HTTP server.
 type HttpRouterTemplate struct{}
 
@@ -17,13 +23,18 @@ func (c HttpRouterTemplate) Main() []byte {
 
 // Server returns the server template for the HttpRouter-based HTTP server.
 func (c HttpRouterTemplate) Server() []byte {
-	return MakeHTTPServer
+	return standardServerTemplate
 }
 
 // Routes returns the routes template for the HttpRouter-based HTTP server.
 func (c HttpRouterTemplate) Routes() []byte {
-	return MakeRouterRoutes
+	return httpRouterRoutesTemplate
 }
 
-//go:embed static/routes/http_router.go.tmpl
-var MakeRouterRoutes []byte
+func (s HttpRouterTemplate) ServerWithDB() []byte {
+	return standardDatabaseServerTemplate
+}
+
+func (s HttpRouterTemplate) RoutesWithDB() []byte {
+	return httpDBRouterRoutesTemplate
+}

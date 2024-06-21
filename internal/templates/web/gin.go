@@ -7,6 +7,12 @@ import (
 	template "github.com/tz3/goforge/internal/templates"
 )
 
+//go:embed static/routes/gin.go.tmpl
+var ginRoutes []byte
+
+//go:embed static/db/routes/gin.go.tmpl
+var ginDatabaseRoutesTemplate []byte
+
 // GinTemplate is a struct that provides methods to generate templates for a Gin-based HTTP server.
 type GinTemplate struct{}
 
@@ -17,13 +23,18 @@ func (c GinTemplate) Main() []byte {
 
 // Server returns the server template for the Gin-based HTTP server.
 func (c GinTemplate) Server() []byte {
-	return MakeHTTPServer
+	return standardServerTemplate
 }
 
 // Routes returns the routes template for the Gin-based HTTP server.
 func (c GinTemplate) Routes() []byte {
-	return MakeGinRoutes
+	return ginRoutes
 }
 
-//go:embed static/routes/gin.go.tmpl
-var MakeGinRoutes []byte
+func (s GinTemplate) ServerWithDB() []byte {
+	return standardDatabaseServerTemplate
+}
+
+func (s GinTemplate) RoutesWithDB() []byte {
+	return ginDatabaseRoutesTemplate
+}
