@@ -69,7 +69,19 @@ func InitSteps() *Steps {
 				Options: []Option{
 					{
 						Title: "mysql",
-						Desc:  "use go-mysql-driver from: https://github.com/go-sql-driver/mysql",
+						Desc:  "Use go-mysql-driver from: https://github.com/go-sql-driver/mysql",
+					},
+					{
+						Title: "postgres",
+						Desc:  "Use pg, PostgreSQL driver and toolkit from: https://github.com/lib/pq",
+					},
+					{
+						Title: "sqlite",
+						Desc:  "Use go-sqlite3, SQLite driver for go that using database/sql from: https://github.com/mattn/go-sqlite3",
+					},
+					{
+						Title: "mongo",
+						Desc:  "Use mongo-driver, the Go driver for MongoDB from: https://github.com/mongodb/mongo-go-driver",
 					},
 					{
 						Title: "none",
