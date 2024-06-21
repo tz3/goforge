@@ -1,7 +1,8 @@
-Todo:-
+Todo (Not ordered):-
 
 1. Add Rest/GraphQL.
 2. Support more DBs (e.g., MySQL, PostgreSQL, MongoDB, SQLite).
 3. Implement the Interface Segregation Principle, ensuring that a class does not depend on methods it does not use.
 4. Add more test coverage.
 5. Implement better secret/const handling. 
+6. Add docker support (Also docker compose no need to have database running always!)

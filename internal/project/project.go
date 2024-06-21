@@ -63,7 +63,7 @@ type DBDriverTemplateGenerator interface {
 // Web framework dependencies, and supported web-frameworks
 var (
 	SupportedWebframeworks   = []string{"chi", "echo", "fiber", "gin", "gorilla/mux", "httprouter", "standard-library"}
-	SupportedDatabaseDrivers = []string{"mysql", "none"} // Todo:- add other db types:- postgres, sqlite, mongo
+	SupportedDatabaseDrivers = []string{"mysql", "postgres", "sqlite", "mongo", "none"}
 	chiDependencies          = []string{"github.com/go-chi/chi/v5"}
 	gorillaDependencies      = []string{"github.com/gorilla/mux"}
 	routerDependencies       = []string{"github.com/julienschmidt/httprouter"}
@@ -71,7 +71,11 @@ var (
 	fiberDependencies        = []string{"github.com/gofiber/fiber/v2"}
 	echoDependencies         = []string{"github.com/labstack/echo/v4", "github.com/labstack/echo/v4/middleware"}
 	mysqlDependencies        = []string{"github.com/go-sql-driver/mysql"}
-	godotenvDependencies     = []string{"github.com/joho/godotenv"}
+	postgresDependencies     = []string{"github.com/lib/pq"}
+	sqliteDependencies       = []string{"github.com/mattn/go-sqlite3"}
+	mongoDependencies        = []string{"go.mongodb.org/mongo-driver"}
+
+	godotenvDependencies = []string{"github.com/joho/godotenv"}
 )
 
 // File paths and names.
@@ -142,6 +146,18 @@ func (p *ProjectConfig) createDatabaseDriverMap() {
 	p.DatabaseDriverMap["mysql"] = DatabaseDriver{
 		dependencies: mysqlDependencies,
 		templateGen:  db.MysqlTemplate{},
+	}
+	p.DatabaseDriverMap["postgres"] = DatabaseDriver{
+		dependencies: postgresDependencies,
+		templateGen:  db.PostgresTemplate{},
+	}
+	p.DatabaseDriverMap["sqlite"] = DatabaseDriver{
+		dependencies: sqliteDependencies,
+		templateGen:  db.SqliteTemplate{},
+	}
+	p.DatabaseDriverMap["mongo"] = DatabaseDriver{
+		dependencies: mongoDependencies,
+		templateGen:  db.MongoTemplate{},
 	}
 }
 
