@@ -31,10 +31,12 @@ func (e EchoTemplate) Routes() []byte {
 	return echoRoutes
 }
 
-func (s EchoTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the Echo-based HTTP server.
+func (e EchoTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
-func (s EchoTemplate) RoutesWithDB() []byte {
+// Routes returns the DB routes template for the Echo-based HTTP server.
+func (e EchoTemplate) RoutesWithDB() []byte {
 	return echoDatabaseRoutesTemplate
 }

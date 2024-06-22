@@ -19,25 +19,27 @@ var standardDatabaseServerTemplate []byte
 // StandardLibraryTemplate is a struct that provides methods to generate templates for a standard library-based HTTP server.
 type StandardLibraryTemplate struct{}
 
-// Main returns the main template for the standard library-based HTTP server.
-func (c StandardLibraryTemplate) Main() []byte {
+// Main returns the main template for the standard-library-based HTTP server.
+func (s StandardLibraryTemplate) Main() []byte {
 	return template.MainTemplate
 }
 
-// Server returns the server template for the standard library-based HTTP server.
-func (c StandardLibraryTemplate) Server() []byte {
+// Server returns the server template for the standard-library-based HTTP server.
+func (s StandardLibraryTemplate) Server() []byte {
 	return standardServerTemplate
 }
 
-// Routes returns the routes template for the standard library-based HTTP server.
-func (c StandardLibraryTemplate) Routes() []byte {
+// Routes returns the routes template for the standard-library-based HTTP server.
+func (s StandardLibraryTemplate) Routes() []byte {
 	return standardHTTPRoutes
 }
 
+// Routes returns the DB server template for the standard-library-based HTTP server.
 func (s StandardLibraryTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
+// Routes returns the DB routes template for the standard-library-based HTTP server.
 func (s StandardLibraryTemplate) RoutesWithDB() []byte {
 	return standardDatabaseRoutesTemplate
 }

@@ -74,8 +74,7 @@ var (
 	postgresDependencies     = []string{"github.com/lib/pq"}
 	sqliteDependencies       = []string{"github.com/mattn/go-sqlite3"}
 	mongoDependencies        = []string{"go.mongodb.org/mongo-driver"}
-
-	godotenvDependencies = []string{"github.com/joho/godotenv"}
+	godotenvDependencies     = []string{"github.com/joho/godotenv"}
 )
 
 // File paths and names.
@@ -432,7 +431,6 @@ func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectP
 			err = createdTemplate.Execute(createdFile, p)
 		}
 	}
-
 	if err != nil {
 		return err
 	}
