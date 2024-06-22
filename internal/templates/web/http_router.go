@@ -17,24 +17,26 @@ var httpDBRouterRoutesTemplate []byte
 type HttpRouterTemplate struct{}
 
 // Main returns the main template for the HttpRouter-based HTTP server.
-func (c HttpRouterTemplate) Main() []byte {
+func (h HttpRouterTemplate) Main() []byte {
 	return template.MainTemplate
 }
 
 // Server returns the server template for the HttpRouter-based HTTP server.
-func (c HttpRouterTemplate) Server() []byte {
+func (h HttpRouterTemplate) Server() []byte {
 	return standardServerTemplate
 }
 
 // Routes returns the routes template for the HttpRouter-based HTTP server.
-func (c HttpRouterTemplate) Routes() []byte {
+func (h HttpRouterTemplate) Routes() []byte {
 	return httpRouterRoutesTemplate
 }
 
-func (s HttpRouterTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the HttpRouter-based HTTP server.
+func (h HttpRouterTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
-func (s HttpRouterTemplate) RoutesWithDB() []byte {
+// Routes returns the DB routes template for the HttpRouter-based HTTP server.
+func (h HttpRouterTemplate) RoutesWithDB() []byte {
 	return httpDBRouterRoutesTemplate
 }

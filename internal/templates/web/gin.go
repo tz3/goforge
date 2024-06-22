@@ -17,24 +17,26 @@ var ginDatabaseRoutesTemplate []byte
 type GinTemplate struct{}
 
 // Main returns the main template for the Gin-based HTTP server.
-func (c GinTemplate) Main() []byte {
+func (g GinTemplate) Main() []byte {
 	return template.MainTemplate
 }
 
 // Server returns the server template for the Gin-based HTTP server.
-func (c GinTemplate) Server() []byte {
+func (g GinTemplate) Server() []byte {
 	return standardServerTemplate
 }
 
 // Routes returns the routes template for the Gin-based HTTP server.
-func (c GinTemplate) Routes() []byte {
+func (g GinTemplate) Routes() []byte {
 	return ginRoutes
 }
 
-func (s GinTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the Gin-based HTTP server.
+func (g GinTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
-func (s GinTemplate) RoutesWithDB() []byte {
+// Routes returns the DB routes template for the Gin-based HTTP server.
+func (g GinTemplate) RoutesWithDB() []byte {
 	return ginDatabaseRoutesTemplate
 }

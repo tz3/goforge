@@ -22,24 +22,26 @@ var fiberDatabaseServerTemplate []byte
 type FiberTemplate struct{}
 
 // Main returns the main template for the Fiber-based HTTP server.
-func (c FiberTemplate) Main() []byte {
+func (f FiberTemplate) Main() []byte {
 	return fiberMain
 }
 
 // Server returns the server template for the Fiber-based HTTP server.
-func (c FiberTemplate) Server() []byte {
+func (f FiberTemplate) Server() []byte {
 	return fiberServer
 }
 
 // Routes returns the routes template for the Fiber-based HTTP server.
-func (c FiberTemplate) Routes() []byte {
+func (f FiberTemplate) Routes() []byte {
 	return fiberRoutes
 }
 
-func (s FiberTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the Fiber-based HTTP server.
+func (f FiberTemplate) ServerWithDB() []byte {
 	return fiberDatabaseServerTemplate
 }
 
-func (s FiberTemplate) RoutesWithDB() []byte {
+// Routes returns the DB routes template for the Fiber-based HTTP server.
+func (f FiberTemplate) RoutesWithDB() []byte {
 	return fiberDatabaseRoutesTemplate
 }

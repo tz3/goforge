@@ -31,10 +31,12 @@ func (c ChiTemplate) Routes() []byte {
 	return chiRoutes
 }
 
-func (s ChiTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the Chi-based HTTP server.
+func (c ChiTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
-func (s ChiTemplate) RoutesWithDB() []byte {
+// Routes returns the routes for DB template for the Chi-based HTTP server.
+func (c ChiTemplate) RoutesWithDB() []byte {
 	return chiDatabaseRoutesTemplate
 }

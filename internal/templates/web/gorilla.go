@@ -17,24 +17,26 @@ var gorillaDatabaseRoutesTemplate []byte
 type GorillaTemplate struct{}
 
 // Main returns the main template for the Gorilla-based HTTP server.
-func (c GorillaTemplate) Main() []byte {
+func (g GorillaTemplate) Main() []byte {
 	return template.MainTemplate
 }
 
 // Server returns the server template for the Gorilla-based HTTP server.
-func (c GorillaTemplate) Server() []byte {
+func (g GorillaTemplate) Server() []byte {
 	return standardServerTemplate
 }
 
 // Routes returns the routes template for the Gorilla-based HTTP server.
-func (c GorillaTemplate) Routes() []byte {
+func (g GorillaTemplate) Routes() []byte {
 	return gorillaRoutes
 }
 
-func (s GorillaTemplate) ServerWithDB() []byte {
+// Routes returns the DB server template for the Gorilla-based HTTP server.
+func (g GorillaTemplate) ServerWithDB() []byte {
 	return standardDatabaseServerTemplate
 }
 
-func (s GorillaTemplate) RoutesWithDB() []byte {
+// Routes returns the DB routes template for the Gorilla-based HTTP server.
+func (g GorillaTemplate) RoutesWithDB() []byte {
 	return gorillaDatabaseRoutesTemplate
 }
