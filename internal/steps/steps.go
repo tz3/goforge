@@ -73,7 +73,7 @@ func InitSteps() *Steps {
 					},
 					{
 						Title: "postgres",
-						Desc:  "Use pg, PostgreSQL driver and toolkit from: https://github.com/lib/pq",
+						Desc:  "Use pgx, PostgreSQL driver and toolkit from: get github.com/jackc/pgx/v5",
 					},
 					{
 						Title: "sqlite",
