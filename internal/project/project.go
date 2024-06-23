@@ -60,7 +60,7 @@ type DBDriverTemplateGenerator interface {
 	Env() []byte
 }
 
-// Web framework dependencies, and supported web-frameworks
+// Supported Web framework, and DB driver and its dependencies.
 var (
 	SupportedWebframeworks   = []string{"chi", "echo", "fiber", "gin", "gorilla/mux", "httprouter", "standard-library"}
 	SupportedDatabaseDrivers = []string{"mysql", "postgres", "sqlite", "mongo", "none"}
@@ -71,7 +71,7 @@ var (
 	fiberDependencies        = []string{"github.com/gofiber/fiber/v2"}
 	echoDependencies         = []string{"github.com/labstack/echo/v4", "github.com/labstack/echo/v4/middleware"}
 	mysqlDependencies        = []string{"github.com/go-sql-driver/mysql"}
-	postgresDependencies     = []string{"github.com/lib/pq"}
+	postgresDependencies     = []string{"github.com/jackc/pgx/v5"}
 	sqliteDependencies       = []string{"github.com/mattn/go-sqlite3"}
 	mongoDependencies        = []string{"go.mongodb.org/mongo-driver"}
 	godotenvDependencies     = []string{"github.com/joho/godotenv"}
