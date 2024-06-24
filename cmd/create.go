@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/tz3/goforge/cmd/ui/multiinput"
+	"github.com/tz3/goforge/cmd/ui/spinner"
 	"github.com/tz3/goforge/cmd/ui/textinput"
 	"github.com/tz3/goforge/internal/project"
 	"github.com/tz3/goforge/internal/steps"
@@ -223,16 +224,49 @@ func handleInteractiveDatabaseDriver(options Options, projectConfig *project.Pro
 
 // setupProject sets up the project configuration and creates necessary files.
 func setupProject(projectConfig *project.ProjectConfig) {
+	if isTerminal() {
+		p := tea.NewProgram(spinner.InitialModel())
+
+		go func() {
+			if err := initializeProject(projectConfig); err != nil {
+				p.Send(spinner.CompleteMsg{Err: err})
+			} else {
+				p.Send(spinner.CompleteMsg{})
+			}
+		}()
+
+		if _, err := p.Run(); err != nil {
+			log.Fatalf("Error running program: %v", err)
+		}
+	} else {
+		if err := initializeProject(projectConfig); err != nil {
+			log.Fatalf("Error initializing project: %v", err)
+		}
+	}
+}
+
+// isTerminal checks if the standard output is a terminal.
+func isTerminal() bool {
+	fileInfo, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+	return (fileInfo.Mode() & os.ModeCharDevice) != 0
+}
+
+// initializeProject initializes the project configuration and creates necessary files.
+func initializeProject(projectConfig *project.ProjectConfig) error {
 	currentWorkingDir, err := os.Getwd()
 	if err != nil {
 		log.Printf("Could not get current working directory: %v", err)
-		cobra.CheckErr(fmt.Errorf("could not get current working directory: %v", err))
+		return fmt.Errorf("could not get current working directory: %v", err)
 	}
 	projectConfig.AbsolutePath = currentWorkingDir
 	if err := projectConfig.CreateMainFile(); err != nil {
 		log.Printf("Problem creating files for project configuration: %v", err)
-		cobra.CheckErr(fmt.Errorf("problem creating files for project configuration: %v", err))
+		return fmt.Errorf("problem creating files for project configuration: %v", err)
 	}
+	return nil
 }
 
 // setFlagValue sets the value of a command flag.
