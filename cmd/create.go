@@ -117,7 +117,7 @@ var createCmd = &cobra.Command{
 		fmt.Println(endingMsgStyle.Render(fmt.Sprintf("• cd %s\n", projectConfig.ProjectName)))
 
 		if isInteractive {
-			fmt.Println(tipMessageStyle.Render("Tip: Repeat the equivalent Blueprint with the following non-interactive command:"))
+			fmt.Println(tipMessageStyle.Render("Tip: Repeat the equivalent Goforge with the following non-interactive command:"))
 			fmt.Println(tipMessageStyle.Italic(false).Render(fmt.Sprintf("• %s\n", nonInteractiveCommand(cmd.Flags()))))
 		}
 	},
