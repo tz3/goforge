@@ -10,11 +10,11 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	// "github.com/melkeydev/go-blueprint/cmd/utils"
 
 	"github.com/spf13/cobra"
 	tpl "github.com/tz3/goforge/internal/templates"
 	"github.com/tz3/goforge/internal/templates/db"
+	"github.com/tz3/goforge/internal/templates/docker"
 	"github.com/tz3/goforge/internal/templates/web"
 )
 
@@ -25,8 +25,10 @@ type ProjectConfig struct {
 	ProjectName       string
 	ProjectType       string
 	DatabaseDriver    string
+	Docker            string
 	DatabaseDriverMap map[string]DatabaseDriver // can be any of the supported Db Drivers
 	FrameworkMap      map[string]WebFramework   // Can be any of the supported router Packages.
+	DockerMap         map[string]Docker         // can be any of the supported Db Drivers
 	Exit              bool
 	AbsolutePath      string
 }
@@ -35,7 +37,7 @@ type ProjectConfig struct {
 // It includes the dependencies of the framework and a template generator.
 type WebFramework struct {
 	dependencies []string
-	templateGen  TemplateGenerator
+	templateGen  WebFrameworkTemplateGenerator
 }
 
 // DatabaseDriver represents a database driver that can be used in the project.
@@ -45,9 +47,16 @@ type DatabaseDriver struct {
 	templateGen  DBDriverTemplateGenerator
 }
 
-// TemplateGenerator is an interface that defines the methods for generating
+// Docker represents a dockerfile that can be used in the project.
+// It includes the dependencies of the driver and a template generator.
+type Docker struct {
+	dependencies []string
+	templateGen  DockerTemplateGenerator
+}
+
+// WebFrameworkTemplateGenerator is an interface that defines the methods for generating
 // templates for the main, server, and routes files.
-type TemplateGenerator interface {
+type WebFrameworkTemplateGenerator interface {
 	Main() []byte
 	Server() []byte
 	Routes() []byte
@@ -58,6 +67,11 @@ type TemplateGenerator interface {
 type DBDriverTemplateGenerator interface {
 	Service() []byte
 	Env() []byte
+	EnvExample() []byte
+}
+
+type DockerTemplateGenerator interface {
+	Docker() []byte
 }
 
 // Supported Web framework, and DB driver and its dependencies.
@@ -224,9 +238,34 @@ func (p *ProjectConfig) CreateMainFile() error {
 
 		err = p.createFileAndWriteTemplate(internalDatabasePath, projectPath, databaseFile, "database")
 		if err != nil {
-			log.Printf("Error injecting server.go file: %v", err)
+			log.Printf("Error injecting database.go file: %v", err)
 			cobra.CheckErr(err)
 			return err
+		}
+	}
+
+	// Create correct docker compose for the selected driver
+	if p.DatabaseDriver != "none" {
+
+		err = p.createFileAndWriteTemplate(root, projectPath, ".env.example", "env-example")
+		if err != nil {
+			log.Printf("Error injecting .env.example file: %v", err)
+			cobra.CheckErr(err)
+			return err
+		}
+
+		if p.DatabaseDriver != "sqlite" {
+			p.createDockerMap()
+			p.Docker = p.DatabaseDriver
+
+			err = p.createFileAndWriteTemplate(root, projectPath, "docker-compose.yml", "docker-compose")
+			if err != nil {
+				log.Printf("Error injecting docker-compose.yml file: %v", err)
+				cobra.CheckErr(err)
+				return err
+			}
+		} else {
+			fmt.Println("\nWe are unable to create docker-compose.yml file for an SQLite database")
 		}
 	}
 
@@ -376,6 +415,24 @@ func (p *ProjectConfig) CreateMainFile() error {
 	return nil
 }
 
+// createDockerMap initialize the dockerMap with the available dockers.
+func (p *ProjectConfig) createDockerMap() {
+	p.DockerMap = make(map[string]Docker)
+
+	p.DockerMap["mysql"] = Docker{
+		dependencies: []string{},
+		templateGen:  docker.MysqlDockerTemplate{},
+	}
+	p.DockerMap["postgres"] = Docker{
+		dependencies: []string{},
+		templateGen:  docker.PostgresDockerTemplate{},
+	}
+	p.DockerMap["mongo"] = Docker{
+		dependencies: []string{},
+		templateGen:  docker.MongoDockerTemplate{},
+	}
+}
+
 // createPath creates a new directory at the given path.
 func (p *ProjectConfig) createPath(pathToCreate string, projectPath string) error {
 	if _, err := os.Stat(fmt.Sprintf("%s/%s", projectPath, pathToCreate)); os.IsNotExist(err) {
@@ -418,6 +475,13 @@ func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectP
 	case "database":
 		createdTemplate := template.Must(template.New(fileName).Parse(string(p.DatabaseDriverMap[p.DatabaseDriver].templateGen.Service())))
 		err = createdTemplate.Execute(createdFile, p)
+	case "docker-compose":
+		createdTemplate := template.Must(template.New(fileName).Parse(string(p.DockerMap[p.Docker].templateGen.Docker())))
+		err = createdTemplate.Execute(createdFile, p)
+	case "env-example":
+		createdTemplate := template.Must(template.New(fileName).Parse(string(p.DatabaseDriverMap[p.DatabaseDriver].templateGen.EnvExample())))
+		err = createdTemplate.Execute(createdFile, p)
+
 	case "env":
 		if p.DatabaseDriver != "none" {
 			envBytes := [][]byte{
