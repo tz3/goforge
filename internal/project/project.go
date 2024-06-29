@@ -174,7 +174,7 @@ func (p *ProjectConfig) createDatabaseDriverMap() {
 	}
 }
 
-// Todo: Decompose this function into smaller ones.
+// Todo: Fix me:- function is too long, decompose this function into smaller ones.
 // CreateMainFile creates the main file for the project.
 // It creates the project directory, initializes the Go module, installs the dependencies,
 // creates the necessary paths and files, and formats the Go code.
@@ -265,7 +265,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 				return err
 			}
 		} else {
-			fmt.Println("\nWe are unable to create docker-compose.yml file for an SQLite database")
+			fmt.Println("We are unable to create docker-compose.yml file for an SQLite database")
 		}
 	}
 
