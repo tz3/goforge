@@ -15,6 +15,7 @@ type StepSchema struct {
 // Option represents a single option that can be chosen in a step.
 // It includes the title of the option and a description.
 type Option struct {
+	Flag  string
 	Title string
 	Desc  string
 }
@@ -34,30 +35,37 @@ func InitSteps() *Steps {
 				StepName: "Web Framework",
 				Options: []Option{
 					{
+						Flag:  "standard-library",
 						Title: "standard-library",
 						Desc:  "Built in standard golang library",
 					},
 					{
+						Flag:  "chi",
 						Title: "chi",
 						Desc:  "use go-chi from: https://github.com/go-chi/chi",
 					},
 					{
+						Flag:  "gin",
 						Title: "gin",
 						Desc:  "use gin-gonic from: https://github.com/gin-gonic/gin",
 					},
 					{
+						Flag:  "fiber",
 						Title: "fiber",
 						Desc:  "use gofiber from: https://github.com/gofiber/fiber",
 					},
 					{
+						Flag:  "gorilla/mux",
 						Title: "gorilla/mux",
 						Desc:  "use gorilla/mux from: https://github.com/gorilla/mux",
 					},
 					{
+						Flag:  "httprouter",
 						Title: "httprouter",
 						Desc:  "use julienschmidt/httprouter from: https://github.com/julienschmidt/httprouter",
 					},
 					{
+						Flag:  "echo",
 						Title: "echo",
 						Desc:  "use echo from: https://github.com/labstack/echo",
 					},
@@ -68,27 +76,48 @@ func InitSteps() *Steps {
 				StepName: "Database Driver",
 				Options: []Option{
 					{
+						Flag:  "mysql",
 						Title: "mysql",
 						Desc:  "Use go-mysql-driver from: https://github.com/go-sql-driver/mysql",
 					},
 					{
+						Flag:  "postgres",
 						Title: "postgres",
 						Desc:  "Use pgx, PostgreSQL driver and toolkit from: get github.com/jackc/pgx/v5",
 					},
 					{
+						Flag:  "sqlite",
 						Title: "sqlite",
 						Desc:  "Use go-sqlite3, SQLite driver for go that using database/sql from: https://github.com/mattn/go-sqlite3",
 					},
 					{
+						Flag:  "mongo",
 						Title: "mongo",
 						Desc:  "Use mongo-driver, the Go driver for MongoDB from: https://github.com/mongodb/mongo-go-driver",
 					},
 					{
+						Flag:  "none",
 						Title: "none",
 						Desc:  "Project with no Database setup!",
 					},
 				},
 				Headers: "What database driver do you want to use in your Go project?",
+			},
+			"advanced": {
+				StepName: "Advanced Features",
+				Headers:  "Which advanced features do you want?",
+				Options: []Option{
+					{
+						Flag:  "HTMX/Templ",
+						Title: "HTMX/Templ",
+						Desc:  "Add starter HTMX and Templ files.",
+					},
+					{
+						Flag:  "Go Project Workflow",
+						Title: "Go Project Workflow",
+						Desc:  "Workflow templates for testing, cross-compiling and releasing Go projects",
+					},
+				},
 			},
 		},
 	}

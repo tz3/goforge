@@ -26,6 +26,8 @@ type ProjectConfig struct {
 	ProjectType       string
 	DatabaseDriver    string
 	Docker            string
+	AdvancedOptions   map[string]bool
+	AdvancedTemplates AdvancedTemplates
 	DatabaseDriverMap map[string]DatabaseDriver // can be any of the supported Db Drivers
 	FrameworkMap      map[string]WebFramework   // Can be any of the supported router Packages.
 	DockerMap         map[string]Docker         // can be any of the supported Db Drivers
@@ -62,6 +64,14 @@ type WebFrameworkTemplateGenerator interface {
 	Routes() []byte
 	RoutesWithDB() []byte
 	ServerWithDB() []byte
+	HtmxTemplateRoutes() []byte
+	HtmxTemplateImports() []byte
+}
+
+type WorkflowTemplater interface {
+	Releaser() []byte
+	Test() []byte
+	ReleaserConfig() []byte
 }
 
 type DBDriverTemplateGenerator interface {
@@ -72,6 +82,11 @@ type DBDriverTemplateGenerator interface {
 
 type DockerTemplateGenerator interface {
 	Docker() []byte
+}
+
+type AdvancedTemplates struct {
+	TemplateRoutes  template.HTML
+	TemplateImports template.HTML
 }
 
 // Supported Web framework, and DB driver and its dependencies.
@@ -89,6 +104,7 @@ var (
 	sqliteDependencies       = []string{"github.com/mattn/go-sqlite3"}
 	mongoDependencies        = []string{"go.mongodb.org/mongo-driver"}
 	godotenvDependencies     = []string{"github.com/joho/godotenv"}
+	templateDependencies     = []string{"github.com/a-h/templ"}
 )
 
 // File paths and names.
@@ -97,6 +113,8 @@ const (
 	cmdApiPath           = "cmd/api"
 	internalServerPath   = "internal/server"
 	internalDatabasePath = "internal/database"
+	cmdWebPath           = "cmd/web"
+	gitHubActionPath     = ".github/workflows"
 	mainFile             = "main.go"
 	databaseFile         = "database.go"
 	serverFile           = "server.go"
@@ -324,6 +342,137 @@ func (p *ProjectConfig) CreateMainFile() error {
 		cobra.CheckErr(err)
 		return err
 	}
+
+	//
+	if p.AdvancedOptions["AddHTMXTempl"] {
+		// create folders and hello world file
+		err = p.createPath(cmdWebPath, projectPath)
+		if err != nil {
+			cobra.CheckErr(err)
+			return err
+		}
+		helloTemplFile, err := os.Create(fmt.Sprintf("%s/%s/hello.templ", projectPath, cmdWebPath))
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+		defer helloTemplFile.Close()
+
+		//inject hello.templ template
+		helloTemplTemplate := template.Must(template.New("hellotempl").Parse((string(advanced.HelloTemplTemplate()))))
+		err = helloTemplTemplate.Execute(helloTemplFile, p)
+		if err != nil {
+			return err
+		}
+
+		baseTemplFile, err := os.Create(fmt.Sprintf("%s/%s/base.templ", projectPath, cmdWebPath))
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+		defer baseTemplFile.Close()
+
+		baseTemplTemplate := template.Must(template.New("basetempl").Parse((string(advanced.BaseTemplTemplate()))))
+		err = baseTemplTemplate.Execute(baseTemplFile, p)
+		if err != nil {
+			return err
+		}
+
+		err = os.Mkdir(fmt.Sprintf("%s/%s/js", projectPath, cmdWebPath), 0755)
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
+		htmxMinJsFile, err := os.Create(fmt.Sprintf("%s/%s/js/htmx.min.js", projectPath, cmdWebPath))
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+		defer htmxMinJsFile.Close()
+
+		htmxMinJsTemplate := advanced.HtmxJSTemplate()
+		err = os.WriteFile(fmt.Sprintf("%s/%s/js/htmx.min.js", projectPath, cmdWebPath), htmxMinJsTemplate, 0644)
+		if err != nil {
+			return err
+		}
+
+		efsFile, err := os.Create(fmt.Sprintf("%s/%s/efs.go", projectPath, cmdWebPath))
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+		defer efsFile.Close()
+
+		efsTemplate := template.Must(template.New("efs").Parse((string(advanced.EfsTemplate()))))
+		err = efsTemplate.Execute(efsFile, p)
+		if err != nil {
+			return err
+		}
+		err = goGetDependencies(projectPath, templateDependencies)
+		if err != nil {
+			log.Printf("Could not install go dependency %v\n", err)
+			cobra.CheckErr(err)
+		}
+
+		helloGoFile, err := os.Create(fmt.Sprintf("%s/%s/hello.go", projectPath, cmdWebPath))
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+		defer efsFile.Close()
+
+		if p.ProjectType == "fiber" {
+			helloGoTemplate := template.Must(template.New("efs").Parse((string(advanced.HelloFiberGoTemplate()))))
+			err = helloGoTemplate.Execute(helloGoFile, p)
+			if err != nil {
+				return err
+			}
+			err = goGetDependencies(projectPath, []string{"github.com/gofiber/fiber/v2/middleware/adaptor"})
+			if err != nil {
+				log.Printf("Could not install go dependency %v\n", err)
+				cobra.CheckErr(err)
+			}
+			if err != nil {
+				log.Printf("Could not install go dependency %v\n", err)
+				cobra.CheckErr(err)
+			}
+		} else {
+			helloGoTemplate := template.Must(template.New("efs").Parse((string(advanced.HelloGoTemplate()))))
+			err = helloGoTemplate.Execute(helloGoFile, p)
+			if err != nil {
+				return err
+			}
+		}
+
+		p.CreateHtmxTemplates()
+	}
+
+	// Create .github/workflows folder and inject release.yml and go-test.yml
+	if p.AdvancedOptions["GitHubAction"] {
+		err = p.createPath(gitHubActionPath, projectPath)
+		if err != nil {
+			log.Printf("Error creating path: %s", gitHubActionPath)
+			cobra.CheckErr(err)
+			return err
+		}
+
+		err = p.createFileAndWriteTemplate(gitHubActionPath, projectPath, "release.yml", "releaser")
+		if err != nil {
+			log.Printf("Error injecting release.yml file: %v", err)
+			cobra.CheckErr(err)
+			return err
+		}
+
+		err = p.createFileAndWriteTemplate(gitHubActionPath, projectPath, "go-test.yml", "go-test")
+		if err != nil {
+			log.Printf("Error injecting go-test.yml file: %v", err)
+			cobra.CheckErr(err)
+			return err
+		}
+
+		err = p.createFileAndWriteTemplate(root, projectPath, ".goreleaser.yml", "releaser-config")
+		if err != nil {
+			log.Printf("Error injecting .goreleaser.yml file: %v", err)
+			cobra.CheckErr(err)
+			return err
+		}
+	}
+	//
 
 	if p.DatabaseDriver != "none" {
 		err = p.createFileAndWriteTemplate(internalServerPath, projectPath, "routes.go", "routesWithDB")

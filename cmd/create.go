@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/tz3/goforge/cmd/ui/multiinput"
+	"github.com/tz3/goforge/cmd/ui/multiselect"
 	"github.com/tz3/goforge/cmd/ui/spinner"
 	"github.com/tz3/goforge/cmd/ui/textinput"
 	"github.com/tz3/goforge/internal/project"
@@ -26,6 +27,8 @@ type Options struct {
 	ProjectName    *textinput.Output
 	ProjectType    *multiinput.Selection
 	DatabaseDriver *multiinput.Selection
+	Workflow       *multiinput.Selection
+	Advanced       *multiselect.Selection
 }
 
 // logo is the ASCII representation of the application logo.
@@ -45,6 +48,7 @@ const (
 	flagProjectTitleKey        = "title"
 	flagProjectWebFrameworkKey = "framework"
 	flagDatabaseDriverKey      = "databaseDriver"
+	flagAdvanceKey             = "advanceKey"
 )
 
 // Styles for rendering the logo and ending message.
@@ -60,6 +64,7 @@ func init() {
 	createCmd.Flags().StringP(flagProjectTitleKey, "t", "", "Title/name of the project to create")
 	createCmd.Flags().StringP(flagProjectWebFrameworkKey, "f", "", fmt.Sprintf("Type of web-framework to use as a router. Allowed values: %s", strings.Join(project.SupportedWebframeworks, ", ")))
 	createCmd.Flags().StringP(flagDatabaseDriverKey, "d", "", fmt.Sprintf("Database driver to use as main DB. Allowed DBs: %s", strings.Join(project.SupportedDatabaseDrivers, ", ")))
+	createCmd.Flags().BoolP(flagAdvanceKey, "a", false, "Enable advanced feature prompts")
 }
 
 // createCmd is the command to create a new Go project.
@@ -74,9 +79,13 @@ var createCmd = &cobra.Command{
 			ProjectName:    &textinput.Output{},
 			ProjectType:    &multiinput.Selection{},
 			DatabaseDriver: &multiinput.Selection{},
+			Advanced: &multiselect.Selection{
+				Choices: make(map[string]bool),
+			},
+			Workflow: &multiinput.Selection{},
 		}
 
-		isInteractive := !hasChangedFlag(cmd.Flags())
+		isInteractive := false
 
 		// Retrieve flag values
 		flagTitleValue := cmd.Flag(flagProjectTitleKey).Value.String()
@@ -94,27 +103,52 @@ var createCmd = &cobra.Command{
 			ProjectType:       flagFrameworkValue,
 			DatabaseDriverMap: make(map[string]project.DatabaseDriver),
 			DatabaseDriver:    flagDatabaseDriverValue,
+			AdvancedOptions:   make(map[string]bool),
 		}
 
 		steps := steps.InitSteps()
 		fmt.Printf("%s\n", logoStyle.Render(logo))
 
+		// Todo:- handle all errors, if something goes wrong stop the app if needed.!
+
+		flagAdvanced, err := cmd.Flags().GetBool("advanced")
+		if err != nil {
+			log.Fatal("failed to retrieve advanced flag")
+		}
+
+		if flagAdvanced {
+			fmt.Println(tipMessageStyle.Render("*** You are in advanced mode ***\n\n"))
+		}
+
 		if projectConfig.ProjectName == "" {
+			isInteractive = true
 			handleInteractiveProjectName(options, projectConfig, cmd)
 		}
 
 		if projectConfig.ProjectType == "" {
+			isInteractive = true
 			handleInteractiveProjectType(options, projectConfig, cmd, steps)
 		}
 
 		if projectConfig.DatabaseDriver == "" {
+			isInteractive = true
 			handleInteractiveDatabaseDriver(options, projectConfig, cmd, steps)
+		}
+
+		if flagAdvanced {
+			isInteractive = true
+			handleInteractiveAdvance(options, projectConfig, steps)
 		}
 
 		setupProject(projectConfig)
 
 		fmt.Println(endingMsgStyle.Render("\nNext steps: cd into the newly created project with:"))
 		fmt.Println(endingMsgStyle.Render(fmt.Sprintf("• cd %s\n", projectConfig.ProjectName)))
+
+		if options.Advanced.Choices["AddHTMXTempl"] {
+			fmt.Println(endingMsgStyle.Render("• Install the templ cli if you haven't already by running `go install github.com/a-h/templ/cmd/templ@latest`\n"))
+			fmt.Println(endingMsgStyle.Render("• Generate templ function files by running `templ generate`\n"))
+		}
 
 		if isInteractive {
 			fmt.Println(tipMessageStyle.Render("Tip: Repeat the equivalent Goforge with the following non-interactive command:"))
@@ -220,6 +254,20 @@ func handleInteractiveDatabaseDriver(options Options, projectConfig *project.Pro
 	projectConfig.ExitCLI(tprogram)
 	projectConfig.DatabaseDriver = strings.ToLower(options.DatabaseDriver.Choice)
 	setFlagValue(cmd, flagDatabaseDriverKey, projectConfig.DatabaseDriver)
+}
+
+// handleInteractiveAdvance handles interactive input for advanced options in the project configuration.
+func handleInteractiveAdvance(options Options, projectConfig *project.ProjectConfig, steps *steps.Steps) {
+	step := steps.Steps["advanced"]
+	tprogram := tea.NewProgram((multiselect.InitialModelMultiSelect(step.Options, options.Advanced, step.Headers, projectConfig)))
+	if _, err := tprogram.Run(); err != nil {
+		cobra.CheckErr(textinput.CreateErrorModel(err).Error())
+		log.Fatal("failed to set the htmx option", err)
+	}
+	projectConfig.ExitCLI(tprogram)
+	for key, opt := range options.Advanced.Choices {
+		projectConfig.AdvancedOptions[key] = opt
+	}
 }
 
 // setupProject sets up the project configuration and creates necessary files.
