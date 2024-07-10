@@ -5,6 +5,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	{{.AdvancedTemplates.TemplateImports}}
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -12,7 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.HandlerFunc(http.MethodGet, "/", s.helloWorldHandler)
 	r.HandlerFunc(http.MethodGet, "/health", s.healthHandler)
-
+{{.AdvancedTemplates.TemplateRoutes}}
 	return r
 }
 

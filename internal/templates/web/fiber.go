@@ -1,7 +1,11 @@
 // Package web provides a set of templates for the specified web router.
 package web
 
-import _ "embed"
+import (
+	_ "embed"
+
+	"github.com/tz3/goforge/internal/templates/advanced"
+)
 
 //go:embed static/server/fiber.go.tmpl
 var fiberServer []byte
@@ -44,4 +48,12 @@ func (f FiberTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the Fiber-based HTTP server.
 func (f FiberTemplate) RoutesWithDB() []byte {
 	return fiberDatabaseRoutesTemplate
+}
+
+func (f FiberTemplate) HtmxTemplateImports() []byte {
+	return advanced.FiberHtmxTemplImportsTemplate()
+}
+
+func (f FiberTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.FiberHtmxTemplRoutesTemplate()
 }

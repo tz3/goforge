@@ -7,6 +7,7 @@ import (
 
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/chi/v5/middleware"
+    {{.AdvancedTemplates.TemplateImports}}
 )
 
 // RegisterRoutes creates a new Chi router, registers a hello world handler to the root path,
@@ -16,7 +17,8 @@ func (s *Server) RegisterRoutes() http.Handler {
     r.Use(middleware.Logger)
 
     r.Get("/", s.helloWorldHandler)
-
+    {{.AdvancedTemplates.TemplateRoutes}}
+    
     return r
 }
 

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	{{.AdvancedTemplates.TemplateImports}}
 )
 
 
@@ -15,7 +16,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.HandleFunc("/", s.helloWorldHandler)
 	r.HandleFunc("/health", s.healthHandler)
-
+	{{.AdvancedTemplates.TemplateRoutes}}
+	
 	return r
 }
 

@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/http_router.go.tmpl
@@ -39,4 +40,12 @@ func (h HttpRouterTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the HttpRouter-based HTTP server.
 func (h HttpRouterTemplate) RoutesWithDB() []byte {
 	return httpDBRouterRoutesTemplate
+}
+
+func (r HttpRouterTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (r HttpRouterTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.HttpRouterHtmxTemplRoutesTemplate()
 }

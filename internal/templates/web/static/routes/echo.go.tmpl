@@ -4,6 +4,7 @@ package server
     
         "github.com/labstack/echo/v4"
         "github.com/labstack/echo/v4/middleware"
+        {{.AdvancedTemplates.TemplateImports}}
     )
 // RegisterRoutes creates a new Echo router, registers a hello world handler to the root path,
 // and returns the router.
@@ -12,6 +13,8 @@ func (s *Server) RegisterRoutes() http.Handler {
     e.Use(middleware.Logger())
     e.Use(middleware.Recover())
     e.GET("/", s.helloWorldHandler)
+    {{.AdvancedTemplates.TemplateRoutes}}
+
     return e
 }
 // helloWorldHandler is an HTTP handler that responds with a JSON containing a hello world message.

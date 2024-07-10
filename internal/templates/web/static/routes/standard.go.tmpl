@@ -4,6 +4,7 @@ import (
     "net/http"
     "encoding/json"
     "log"
+    {{.AdvancedTemplates.TemplateImports}}
 )
 
 // RegisterRoutes creates a new standard library HTTP ServeMux, registers a hello world handler to the root path,
@@ -12,6 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
     mux := http.NewServeMux()
     mux.HandleFunc("/", s.handler)
+    {{.AdvancedTemplates.TemplateRoutes}}
 
     return mux
 }

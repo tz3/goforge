@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/chi.go.tmpl
@@ -39,4 +40,12 @@ func (c ChiTemplate) ServerWithDB() []byte {
 // Routes returns the routes for DB template for the Chi-based HTTP server.
 func (c ChiTemplate) RoutesWithDB() []byte {
 	return chiDatabaseRoutesTemplate
+}
+
+func (c ChiTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (c ChiTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.ChiHtmxTemplRoutesTemplate()
 }

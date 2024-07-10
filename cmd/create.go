@@ -48,7 +48,7 @@ const (
 	flagProjectTitleKey        = "title"
 	flagProjectWebFrameworkKey = "framework"
 	flagDatabaseDriverKey      = "databaseDriver"
-	flagAdvanceKey             = "advanceKey"
+	flagAdvanceKey             = "advanced"
 )
 
 // Styles for rendering the logo and ending message.
@@ -111,7 +111,8 @@ var createCmd = &cobra.Command{
 
 		// Todo:- handle all errors, if something goes wrong stop the app if needed.!
 
-		flagAdvanced, err := cmd.Flags().GetBool("advanced")
+		// advancedFlag option steps
+		flagAdvanced, err := cmd.Flags().GetBool(flagAdvanceKey)
 		if err != nil {
 			log.Fatal("failed to retrieve advanced flag")
 		}
@@ -146,8 +147,8 @@ var createCmd = &cobra.Command{
 		fmt.Println(endingMsgStyle.Render(fmt.Sprintf("• cd %s\n", projectConfig.ProjectName)))
 
 		if options.Advanced.Choices["AddHTMXTempl"] {
-			fmt.Println(endingMsgStyle.Render("• Install the templ cli if you haven't already by running `go install github.com/a-h/templ/cmd/templ@latest`\n"))
-			fmt.Println(endingMsgStyle.Render("• Generate templ function files by running `templ generate`\n"))
+			fmt.Println(endingMsgStyle.Render("• Install the template cli if you haven't already by running `go install github.com/a-h/templ/cmd/templ@latest`\n"))
+			fmt.Println(endingMsgStyle.Render("• Generate template function files by running `template generate`\n"))
 		}
 
 		if isInteractive {

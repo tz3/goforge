@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/echo.go.tmpl
@@ -39,4 +40,12 @@ func (e EchoTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the Echo-based HTTP server.
 func (e EchoTemplate) RoutesWithDB() []byte {
 	return echoDatabaseRoutesTemplate
+}
+
+func (e EchoTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (e EchoTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.EchoHtmxTemplRoutesTemplate()
 }

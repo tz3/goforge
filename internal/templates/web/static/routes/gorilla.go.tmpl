@@ -6,6 +6,7 @@ import (
     "net/http"
 
     "github.com/gorilla/mux"
+    {{.AdvancedTemplates.TemplateImports}}
 )
 
 // RegisterRoutes creates a new Gorilla router, registers a hello world handler to the root path,
@@ -14,7 +15,8 @@ func (s *Server) RegisterRoutes() http.Handler {
     r := mux.NewRouter()
 
     r.HandleFunc("/", s.helloWorldHandler)
-
+    {{.AdvancedTemplates.TemplateRoutes}}
+    
     return r
 }
 

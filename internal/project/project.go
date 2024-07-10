@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 	tpl "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 	"github.com/tz3/goforge/internal/templates/db"
 	"github.com/tz3/goforge/internal/templates/docker"
 	"github.com/tz3/goforge/internal/templates/web"
@@ -68,7 +69,7 @@ type WebFrameworkTemplateGenerator interface {
 	HtmxTemplateImports() []byte
 }
 
-type WorkflowTemplater interface {
+type WorkflowTemplateGenerator interface {
 	Releaser() []byte
 	Test() []byte
 	ReleaserConfig() []byte
@@ -358,7 +359,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		defer helloTemplFile.Close()
 
 		//inject hello.templ template
-		helloTemplTemplate := template.Must(template.New("hellotempl").Parse((string(advanced.HelloTemplTemplate()))))
+		helloTemplTemplate := template.Must(template.New("hellotempl").Parse((string(advanced.HelloTemplate()))))
 		err = helloTemplTemplate.Execute(helloTemplFile, p)
 		if err != nil {
 			return err
@@ -370,7 +371,7 @@ func (p *ProjectConfig) CreateMainFile() error {
 		}
 		defer baseTemplFile.Close()
 
-		baseTemplTemplate := template.Must(template.New("basetempl").Parse((string(advanced.BaseTemplTemplate()))))
+		baseTemplTemplate := template.Must(template.New("basetempl").Parse((string(advanced.BaseTemplate()))))
 		err = baseTemplTemplate.Execute(baseTemplFile, p)
 		if err != nil {
 			return err
@@ -630,7 +631,12 @@ func (p *ProjectConfig) createFileAndWriteTemplate(pathToCreate string, projectP
 	case "env-example":
 		createdTemplate := template.Must(template.New(fileName).Parse(string(p.DatabaseDriverMap[p.DatabaseDriver].templateGen.EnvExample())))
 		err = createdTemplate.Execute(createdFile, p)
-
+	case "releaser":
+		createdTemplate := template.Must(template.New(fileName).Parse(string(advanced.Releaser())))
+		err = createdTemplate.Execute(createdFile, p)
+	case "releaser-config":
+		createdTemplate := template.Must(template.New(fileName).Parse(string(advanced.ReleaserConfig())))
+		err = createdTemplate.Execute(createdFile, p)
 	case "env":
 		if p.DatabaseDriver != "none" {
 			envBytes := [][]byte{
@@ -669,4 +675,34 @@ func IsValidDatabaseDriver(input string) bool {
 		}
 	}
 	return false
+}
+
+func (p *ProjectConfig) CreateHtmxTemplates() {
+	routesPlaceHolder := ""
+	importsPlaceHolder := ""
+	if p.AdvancedOptions["AddHTMXTempl"] {
+		routesPlaceHolder += string(p.FrameworkMap[p.ProjectType].templateGen.HtmxTemplateRoutes())
+		importsPlaceHolder += string(p.FrameworkMap[p.ProjectType].templateGen.HtmxTemplateImports())
+	}
+
+	routeTemplate, err := template.New("routes").Parse(routesPlaceHolder)
+	if err != nil {
+		log.Fatal(err)
+	}
+	importTmpl, err := template.New("imports").Parse(importsPlaceHolder)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var routeBuffer bytes.Buffer
+	var importBuffer bytes.Buffer
+	err = routeTemplate.Execute(&routeBuffer, p)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = importTmpl.Execute(&importBuffer, p)
+	if err != nil {
+		log.Fatal(err)
+	}
+	p.AdvancedTemplates.TemplateRoutes = template.HTML(routeBuffer.String())
+	p.AdvancedTemplates.TemplateImports = template.HTML(importBuffer.String())
 }

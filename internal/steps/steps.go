@@ -36,37 +36,37 @@ func InitSteps() *Steps {
 				Options: []Option{
 					{
 						Flag:  "standard-library",
-						Title: "standard-library",
+						Title: "Standard-library",
 						Desc:  "Built in standard golang library",
 					},
 					{
 						Flag:  "chi",
-						Title: "chi",
+						Title: "Chi",
 						Desc:  "use go-chi from: https://github.com/go-chi/chi",
 					},
 					{
 						Flag:  "gin",
-						Title: "gin",
+						Title: "Gin",
 						Desc:  "use gin-gonic from: https://github.com/gin-gonic/gin",
 					},
 					{
 						Flag:  "fiber",
-						Title: "fiber",
+						Title: "Fiber",
 						Desc:  "use gofiber from: https://github.com/gofiber/fiber",
 					},
 					{
 						Flag:  "gorilla/mux",
-						Title: "gorilla/mux",
+						Title: "Gorilla/mux",
 						Desc:  "use gorilla/mux from: https://github.com/gorilla/mux",
 					},
 					{
 						Flag:  "httprouter",
-						Title: "httprouter",
+						Title: "Httprouter",
 						Desc:  "use julienschmidt/httprouter from: https://github.com/julienschmidt/httprouter",
 					},
 					{
 						Flag:  "echo",
-						Title: "echo",
+						Title: "Echo",
 						Desc:  "use echo from: https://github.com/labstack/echo",
 					},
 				},
@@ -77,27 +77,27 @@ func InitSteps() *Steps {
 				Options: []Option{
 					{
 						Flag:  "mysql",
-						Title: "mysql",
+						Title: "Mysql",
 						Desc:  "Use go-mysql-driver from: https://github.com/go-sql-driver/mysql",
 					},
 					{
 						Flag:  "postgres",
-						Title: "postgres",
+						Title: "Postgres",
 						Desc:  "Use pgx, PostgreSQL driver and toolkit from: get github.com/jackc/pgx/v5",
 					},
 					{
 						Flag:  "sqlite",
-						Title: "sqlite",
+						Title: "Sqlite",
 						Desc:  "Use go-sqlite3, SQLite driver for go that using database/sql from: https://github.com/mattn/go-sqlite3",
 					},
 					{
 						Flag:  "mongo",
-						Title: "mongo",
+						Title: "Mongo",
 						Desc:  "Use mongo-driver, the Go driver for MongoDB from: https://github.com/mongodb/mongo-go-driver",
 					},
 					{
 						Flag:  "none",
-						Title: "none",
+						Title: "None",
 						Desc:  "Project with no Database setup!",
 					},
 				},
@@ -108,7 +108,7 @@ func InitSteps() *Steps {
 				Headers:  "Which advanced features do you want?",
 				Options: []Option{
 					{
-						Flag:  "HTMX/Templ",
+						Flag:  "AddHTMXTempl",
 						Title: "HTMX/Templ",
 						Desc:  "Add starter HTMX and Templ files.",
 					},

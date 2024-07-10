@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/gorilla.go.tmpl
@@ -39,4 +40,20 @@ func (g GorillaTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the Gorilla-based HTTP server.
 func (g GorillaTemplate) RoutesWithDB() []byte {
 	return gorillaDatabaseRoutesTemplate
+}
+
+func (g GorillaTemplate) HtmxTemplImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (g GorillaTemplate) HtmxTemplRoutes() []byte {
+	return advanced.GorillaHtmxTemplRoutesTemplate()
+}
+
+func (g GorillaTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (g GorillaTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.GorillaHtmxTemplRoutesTemplate()
 }

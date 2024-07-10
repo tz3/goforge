@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/standard.go.tmpl
@@ -42,4 +43,12 @@ func (s StandardLibraryTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the standard-library-based HTTP server.
 func (s StandardLibraryTemplate) RoutesWithDB() []byte {
 	return standardDatabaseRoutesTemplate
+}
+
+func (s StandardLibraryTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (s StandardLibraryTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.StdLibHtmxTemplRoutesTemplate()
 }

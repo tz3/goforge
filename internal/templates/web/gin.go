@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	template "github.com/tz3/goforge/internal/templates"
+	"github.com/tz3/goforge/internal/templates/advanced"
 )
 
 //go:embed static/routes/gin.go.tmpl
@@ -39,4 +40,12 @@ func (g GinTemplate) ServerWithDB() []byte {
 // Routes returns the DB routes template for the Gin-based HTTP server.
 func (g GinTemplate) RoutesWithDB() []byte {
 	return ginDatabaseRoutesTemplate
+}
+
+func (g GinTemplate) HtmxTemplateImports() []byte {
+	return advanced.StdLibHtmxTemplImportsTemplate()
+}
+
+func (g GinTemplate) HtmxTemplateRoutes() []byte {
+	return advanced.GinHtmxTemplRoutesTemplate()
 }

@@ -4,6 +4,7 @@ import (
     "net/http"
 
     "github.com/gin-gonic/gin"
+    {{.AdvancedTemplates.TemplateImports}}
 )
 
 // RegisterRoutes creates a new Gin router, registers a hello world handler to the root path,
@@ -12,7 +13,8 @@ func (s *Server) RegisterRoutes() http.Handler {
     r := gin.Default()
 
     r.GET("/", s.helloWorldHandler)
-
+    {{.AdvancedTemplates.TemplateRoutes}}
+    
     return r
 }
 
