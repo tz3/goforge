@@ -1,3 +1,7 @@
+
+<img src="logo.webp" width="256"/>
+
+#
 # GoForge
 GoForge is a command-line interface (CLI) tool designed to streamline the setup of new API projects for Go developers. 
 
