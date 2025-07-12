@@ -16,7 +16,7 @@ To install the GoForge tool, use the following command:
 go install github.com/tz3/goforge@latest
 ```
 
-Ensure that the binary is in your $GOPATH. If it is not, you may need to add it manually.
+Ensure that the binary is in your $GOPATH. If it is not, ,you may need to add it manually.
 
 ### Running the application
 
